@@ -1,7 +1,6 @@
 from enum import Enum
 
-from ayx_blackbird.connection.connection_metadata import ConnectionMetadata
-from ayx_blackbird.records import RecordContainer
+from .record_container import RecordContainer
 
 class ConnectionStatus(Enum):
     CREATED = 0
@@ -16,14 +15,26 @@ class ConnectionInterface:
         self.name = connection_name
 
         self._record_info = None
-        self._metadata = None
+        self._record_container = None
         self.progress_percentage = 0.0
         self.status = ConnectionStatus.CREATED
+
+    def parse_records(self, format):
+        return self._record_container.parse_records(format)
+
+    def clear_records(self):
+        self.clear_records()
+
+    @property
+    def record_list(self):
+        if self.status == ConnectionStatus.CREATED:
+            raise RuntimeError("Connection Interface must be initialized before record list can be accessed.")
+
+        return self._record_container.record_list
 
     def ii_init(self, record_info):
         self._record_info = record_info
         self._record_container = RecordContainer(self._record_info)
-        self._metadata = ConnectionMetadata.build_from_record_info(self._record_info)
         self.status = ConnectionStatus.INITIALIZED
 
         return self._plugin.notify_connection_initialized()

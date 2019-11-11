@@ -3,18 +3,30 @@ import sys
 from abc import ABC, abstractmethod 
 from types import SimpleNamespace
 
-from ayx_blackbird.anchors import InputAnchor, OutputAnchor
-from ayx_blackbird.connection import Connection
+from .input_anchor import InputAnchor
+from .output_anchor import OutputAnchor
+from .connection_interface import ConnectionInterface, ConnectionStatus
 
 import AlteryxPythonSDK as sdk
 
 import xmltodict
 
 class BasePlugin(ABC):
-    workflow_config = {}
-    user_data = SimpleNamespace()
-    _input_anchors = []
-    _output_anchors = []
+    @abstractmethod
+    def initialize_plugin(self):
+        pass
+
+    @abstractmethod
+    def build_metadata(self):
+        pass
+
+    @abstractmethod
+    def process_records(self):
+        pass
+
+    @abstractmethod
+    def on_complete(self):
+        pass
 
     @abstractmethod
     @property
@@ -46,8 +58,23 @@ class BasePlugin(ABC):
 
     @property
     def all_connections_initialized(self):
-        # TODO
-        pass
+        return all(
+            [
+                connection.status != ConnectionStatus.CREATED 
+                for anchor in self._input_anchors 
+                for connection in anchor.connections
+            ]
+        )
+
+    @property
+    def all_connections_closed(self):
+        return all(
+            [
+                connection.status == ConnectionStatus.CLOSED 
+                for anchor in self._input_anchors 
+                for connection in anchor.connections
+            ]
+        )
 
     def __init__(
         self,
@@ -55,12 +82,17 @@ class BasePlugin(ABC):
         alteryxengine: sdk.AlteryxEngine,
         output_anchor_mgr: sdk.OutputAnchorManager,
     ) -> None:
+        self.workflow_config = {}
+        self.user_data = SimpleNamespace()
+        self._input_anchors = []
+        self._output_anchors = []
         self.initialized = False
         self.tool_id = n_tool_id
         self.engine = alteryxengine
         self._output_anchor_mgr = output_anchor_mgr
-        
-        # Pull in the config XML data from conf file using the name of the tool
+        self._tool_config = self._get_tool_config()
+
+    def _get_tool_config(self):
         xml_files = [
             file
             for file in os.listdir(self._get_tool_path())
@@ -73,7 +105,9 @@ class BasePlugin(ABC):
         config_filepath = os.path.join(self._get_tool_path(), xml_files[0])
 
         with open(config_filepath) as fd:
-            self._tool_config = xmltodict.parse(fd.read())
+            tool_config = xmltodict.parse(fd.read())
+
+        return tool_config
 
     def xmsg(self, message):
         return message
@@ -101,29 +135,12 @@ class BasePlugin(ABC):
 
         raise RuntimeError("Tool is not located in Alteryx install locations.")
 
-    @abstractmethod
-    def initialize_plugin(self):
-        pass
-
-    @abstractmethod
-    def build_metadata(self):
-        pass
-
-    @abstractmethod
-    def process_records(self):
-        pass
-
-    @abstractmethod
-    def on_complete(self):
-        pass
-
     def pi_init(self, workflow_config_xml_string: str):
         self._update_sys_path()
 
         self._build_input_anchors()
         self._build_output_anchors()
 
-        # Parse XML and save
         self.workflow_config = xmltodict.parse(workflow_config_xml_string)["Configuration"]
 
         if (
@@ -188,7 +205,7 @@ class BasePlugin(ABC):
 
             self.push_metadata()
             self.push_all_records()
-
+            self.close_output_anchors()
         else:
             self.error(self.xmsg("Missing Incoming Connection(s)."))
             return False
@@ -196,7 +213,8 @@ class BasePlugin(ABC):
         return True
 
     def push_all_records(self):
-        pass
+        for anchor in self._output_anchors:
+            anchor.push_records()
 
     def pi_close(self, b_has_errors):
         # pi_close is useless. Never use it. 
@@ -206,9 +224,16 @@ class BasePlugin(ABC):
         for anchor in self._output_anchors:
             anchor.push_metadata()
 
+    def close_output_anchors(self):
+        for anchor in self._output_anchors:
+            anchor.close()
+
     def notify_single_record_received(self):
-        # TODO
-        pass
+        for anchor in self._input_anchors:
+            for connection in anchor.connections:
+                if len(connection.record_list) >= self.record_batch_size:
+                    self.process_records()
+                    return
 
     def update_progress(self):
         import numpy as np
@@ -226,7 +251,10 @@ class BasePlugin(ABC):
             anchor.update_progress(percent)
 
     def notify_connection_closed(self):
-        pass
+        if self.all_connections_closed:
+            self.process_records()
+            self.on_complete()
+            self.close_output_anchors()
 
     def notify_connection_initialized(self):
         if self.all_connections_initialized:
