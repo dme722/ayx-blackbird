@@ -18,10 +18,6 @@ class RecordContainer:
         else:
             self.record_list = list(records)
 
-    @classmethod
-    def build_records_from_dataframe(record_info, dataframe):
-        pass
-
     def add_record(self, record):
         self._record_copier(self._record_creator, record)
         self.record_list.append(self._record_creator.finalize_record())
@@ -32,8 +28,10 @@ class RecordContainer:
 
     def parse_records(self, format):
         if format=="list":
+            # TODO
             pass
         elif format=="dataframe":
+            # TODO
             pass
 
         raise ValueError("Format must be list or dataframe.")

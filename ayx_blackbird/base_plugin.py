@@ -232,7 +232,10 @@ class BasePlugin(ABC):
         for anchor in self._input_anchors:
             for connection in anchor.connections:
                 if len(connection.record_list) >= self.record_batch_size:
+                    self.build_metadata()
                     self.process_records()
+                    self.push_metadata()
+                    self.push_all_records()
                     return
 
     def update_progress(self):
@@ -252,8 +255,17 @@ class BasePlugin(ABC):
 
     def notify_connection_closed(self):
         if self.all_connections_closed:
-            self.process_records()
-            self.on_complete()
+            self.build_metadata()
+
+            if self.update_only_mode:
+                self.process_records()
+                self.on_complete()
+
+            self.push_metadata()
+
+            if self.update_only_mode:
+                self.push_all_records()
+                
             self.close_output_anchors()
 
     def notify_connection_initialized(self):

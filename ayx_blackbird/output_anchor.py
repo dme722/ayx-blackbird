@@ -17,6 +17,7 @@ class OutputAnchor:
         self._engine_anchor_ref.init(self.record_info)
 
     def push_records(self):
+        # TODO
         pass
 
     def close(self):
