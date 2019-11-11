@@ -92,6 +92,32 @@ class BasePlugin(ABC):
         self._output_anchor_mgr = output_anchor_mgr
         self._tool_config = self._get_tool_config()
 
+    def xmsg(self, message):
+        return message
+
+    def error(self, message):
+        self.engine.output_message(self.tool_id, sdk.EngineMessageType.error, message)
+    
+    def warning(self, message):
+        self.engine.output_message(self.tool_id, sdk.EngineMessageType.warning, message)
+
+    def info(self, message):
+        self.engine.output_message(self.tool_id, sdk.EngineMessageType.info, message)
+
+    def pi_init(self, workflow_config_xml_string: str):
+        self._update_sys_path()
+
+        self._build_input_anchors()
+        self._build_output_anchors()
+
+        self.workflow_config = xmltodict.parse(workflow_config_xml_string)["Configuration"]
+
+        if (
+            self.update_only_mode
+            and len(self._required_input_anchors) == 0
+        ):
+            self.initialized = self.initialize_plugin()
+
     def _get_tool_config(self):
         xml_files = [
             file
@@ -109,18 +135,6 @@ class BasePlugin(ABC):
 
         return tool_config
 
-    def xmsg(self, message):
-        return message
-
-    def error(self, message):
-        self.engine.output_message(self.tool_id, sdk.EngineMessageType.error, message)
-    
-    def warning(self, message):
-        self.engine.output_message(self.tool_id, sdk.EngineMessageType.warning, message)
-
-    def info(self, message):
-        self.engine.output_message(self.tool_id, sdk.EngineMessageType.info, message)
-
     def _get_tool_path(self):
         return os.path.join(self._get_tools_location(), self.tool_name)
 
@@ -134,21 +148,7 @@ class BasePlugin(ABC):
             return user_path
 
         raise RuntimeError("Tool is not located in Alteryx install locations.")
-
-    def pi_init(self, workflow_config_xml_string: str):
-        self._update_sys_path()
-
-        self._build_input_anchors()
-        self._build_output_anchors()
-
-        self.workflow_config = xmltodict.parse(workflow_config_xml_string)["Configuration"]
-
-        if (
-            self.update_only_mode
-            and len(self._required_input_anchors) == 0
-        ):
-            self.initialized = self.initialize_plugin()
-
+    
     def _update_sys_path(self):
         """Update the sys path to include the current tools libs."""
         tool_path = self._get_tool_path()
@@ -228,15 +228,7 @@ class BasePlugin(ABC):
         for anchor in self._output_anchors:
             anchor.close()
 
-    def notify_single_record_received(self):
-        for anchor in self._input_anchors:
-            for connection in anchor.connections:
-                if len(connection.record_list) >= self.record_batch_size:
-                    self.build_metadata()
-                    self.process_records()
-                    self.push_metadata()
-                    self.push_all_records()
-                    return
+    
 
     def update_progress(self):
         import numpy as np
@@ -253,6 +245,16 @@ class BasePlugin(ABC):
         for anchor in self._output_anchors:
             anchor.update_progress(percent)
 
+    def notify_single_record_received(self):
+        for anchor in self._input_anchors:
+            for connection in anchor.connections:
+                if len(connection.record_list) >= self.record_batch_size:
+                    self.build_metadata()
+                    self.process_records()
+                    self.push_metadata()
+                    self.push_all_records()
+                    return
+    
     def notify_connection_closed(self):
         if self.all_connections_closed:
             self.build_metadata()
@@ -265,7 +267,7 @@ class BasePlugin(ABC):
 
             if self.update_only_mode:
                 self.push_all_records()
-                
+
             self.close_output_anchors()
 
     def notify_connection_initialized(self):
