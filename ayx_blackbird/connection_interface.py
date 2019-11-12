@@ -37,8 +37,7 @@ class ConnectionInterface:
         self._record_container = RecordContainer(self._record_info)
         self.status = ConnectionStatus.INITIALIZED
 
-        return self._plugin.notify_connection_initialized()
-        
+        return self._plugin.connection_initialized_callback()
 
     def ii_push_record(self, record):
         if self._plugin.update_only_mode or not self._plugin.all_connections_initialized:
@@ -48,7 +47,7 @@ class ConnectionInterface:
 
         self._record_container.add_record(record)
 
-        self._plugin.notify_single_record_received()
+        self._plugin.single_record_received_callback()
 
         return True
 
@@ -61,5 +60,5 @@ class ConnectionInterface:
 
     def ii_close(self):
         self.status = ConnectionStatus.CLOSED
-        self._plugin.notify_connection_closed()
+        self._plugin.connection_closed_callback()
 

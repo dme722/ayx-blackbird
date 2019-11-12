@@ -139,7 +139,7 @@ class BasePlugin(ABC, EngineMixin):
         for anchor in self._output_anchors:
             anchor.update_progress(percent)
 
-    def notify_single_record_received(self):
+    def single_record_received_callback(self):
         for anchor in self._input_anchors:
             for connection in anchor.connections:
                 if len(connection.record_list) >= self.record_batch_size:
@@ -149,7 +149,7 @@ class BasePlugin(ABC, EngineMixin):
                     self.push_all_records()
                     return
     
-    def notify_connection_closed(self):
+    def connection_closed_callback(self):
         if self.all_connections_closed:
             self.build_metadata()
             self.process_records()
@@ -159,7 +159,7 @@ class BasePlugin(ABC, EngineMixin):
 
             self.close_output_anchors()
 
-    def notify_connection_initialized(self):
+    def connection_initialized_callback(self):
         if self.all_connections_initialized:
             success = self.initialize_plugin()
 
