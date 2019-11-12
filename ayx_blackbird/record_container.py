@@ -37,6 +37,9 @@ class RecordContainer:
 
         raise ValueError("format_ must be list or dataframe.")
 
+    def __iter__(self):
+        yield from self.record_list
+
 
 type_dict = {
     "blob": "get_as_blob",

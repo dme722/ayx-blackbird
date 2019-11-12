@@ -1,3 +1,6 @@
+import AlteryxPythonSDK as sdk
+
+
 class EngineMixin:
     def xmsg(self, message):
         return message
