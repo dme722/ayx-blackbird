@@ -1,8 +1,9 @@
 class OutputAnchor:
-    def __init__(self, name, optional, engine_output_anchor_mgr, record_container=None):
+    def __init__(self, name, optional, engine_output_anchor_mgr, record_info=None, record_container=None):
         self.name = name
         self.optional = optional
         self.num_connections = 0
+        self.record_info = record_info
         self.record_container = record_container
 
         self._engine_anchor_ref = engine_output_anchor_mgr.get_output_anchor(name)

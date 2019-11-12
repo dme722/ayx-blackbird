@@ -3,11 +3,21 @@ from types import SimpleNamespace
 
 from .connection_interface import ConnectionInterface, ConnectionStatus
 from .engine_mixin import EngineMixin
-from .tool_configuration import ToolConfiguration
+from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfig
 
 
 class BasePlugin(ABC, EngineMixin):
+    @abstractmethod
+    @property
+    def tool_name(self):
+        pass
+
+    @abstractmethod
+    @property
+    def record_batch_size(self):
+        pass
+
     @abstractmethod
     def initialize_plugin(self):
         pass
@@ -24,26 +34,16 @@ class BasePlugin(ABC, EngineMixin):
     def on_complete(self):
         pass
 
-    @abstractmethod
-    @property
-    def tool_name(self):
-        pass
-
-    @abstractmethod
-    @property
-    def record_batch_size(self):
-        pass
-
     def __init__(self, n_tool_id, alteryx_engine, output_anchor_mgr):
         self.workflow_config = None
         self.user_data = SimpleNamespace()
-        self._input_anchors = None
-        self._output_anchors = None
+        self.input_anchors = None
+        self.output_anchors = None
         self.initialized = False
         self.tool_id = n_tool_id
         self.engine = alteryx_engine
-        self._output_anchor_mgr = output_anchor_mgr
-        self._tool_config = ToolConfiguration(self.tool_name)
+        self.output_anchor_mgr = output_anchor_mgr
+        self.tool_config = ToolConfiguration(self.tool_name)
 
     @property
     def all_connections_initialized(self):

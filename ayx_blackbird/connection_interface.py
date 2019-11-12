@@ -14,15 +14,15 @@ class ConnectionInterface:
     def __init__(self, plugin, connection_name):
         self.name = connection_name
         self.record_container = None
+        self.record_info = None
         self.progress_percentage = 0.0
         self.status = ConnectionStatus.CREATED
 
         self._plugin = plugin
-        self._record_info = None
 
     def ii_init(self, record_info):
-        self._record_info = record_info
-        self.record_container = RecordContainer(self._record_info)
+        self.record_info = record_info
+        self.record_container = RecordContainer(self.record_info)
         self.status = ConnectionStatus.INITIALIZED
 
         return self._plugin.connection_initialized_callback()
