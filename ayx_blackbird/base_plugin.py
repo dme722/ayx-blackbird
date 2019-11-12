@@ -4,10 +4,7 @@ from types import SimpleNamespace
 from .connection_interface import ConnectionInterface, ConnectionStatus
 from .engine_mixin import EngineMixin
 from .tool_configuration import ToolConfiguration
-
-import AlteryxPythonSDK as sdk
-
-import xmltodict
+from .workflow_config import WorkflowConfig
 
 
 class BasePlugin(ABC, EngineMixin):
@@ -37,13 +34,8 @@ class BasePlugin(ABC, EngineMixin):
     def record_batch_size(self):
         pass
 
-    def __init__(
-        self,
-        n_tool_id: int,
-        alteryx_engine: sdk.AlteryxEngine,
-        output_anchor_mgr: sdk.OutputAnchorManager,
-    ) -> None:
-        self.workflow_config = {}
+    def __init__(self, n_tool_id, alteryx_engine, output_anchor_mgr):
+        self.workflow_config = None
         self.user_data = SimpleNamespace()
         self._input_anchors = None
         self._output_anchors = None
@@ -81,7 +73,7 @@ class BasePlugin(ABC, EngineMixin):
         self._input_anchors = self._tool_config.build_input_anchors()
         self._output_anchors = self._tool_config.build_output_anchors()
 
-        self.workflow_config = xmltodict.parse(workflow_config_xml_string)["Configuration"]
+        self.workflow_config = WorkflowConfig(workflow_config_xml_string, self.engine)
 
         if (
             self.update_only_mode
@@ -160,15 +152,10 @@ class BasePlugin(ABC, EngineMixin):
     def notify_connection_closed(self):
         if self.all_connections_closed:
             self.build_metadata()
-
-            if self.update_only_mode:
-                self.process_records()
-                self.on_complete()
-
+            self.process_records()
+            self.on_complete()
             self.push_metadata()
-
-            if self.update_only_mode:
-                self.push_all_records()
+            self.push_all_records()
 
             self.close_output_anchors()
 
@@ -184,3 +171,9 @@ class BasePlugin(ABC, EngineMixin):
             return success
 
         return True
+
+    def only_on_metadata_propagation(self):
+        pass
+
+    def only_on_run(self):
+        pass
