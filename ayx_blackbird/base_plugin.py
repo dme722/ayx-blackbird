@@ -144,18 +144,28 @@ class BasePlugin(ABC, EngineMixin):
             for connection in anchor.connections:
                 if len(connection.record_list) >= self.record_batch_size:
                     self.build_metadata()
-                    self.process_records()
+
+                    if not self.update_only_mode:
+                        self.process_records()
+
                     self.push_metadata()
-                    self.push_all_records()
+
+                    if not self.update_only_mode:
+                        self.push_all_records()
                     return
     
     def connection_closed_callback(self):
         if self.all_connections_closed:
             self.build_metadata()
-            self.process_records()
-            self.on_complete()
+
+            if self.update_only_mode:
+                self.process_records()
+                self.on_complete()
+
             self.push_metadata()
-            self.push_all_records()
+
+            if self.update_only_mode:
+                self.push_all_records()
 
             self.close_output_anchors()
 
@@ -163,7 +173,7 @@ class BasePlugin(ABC, EngineMixin):
         if self.all_connections_initialized:
             success = self.initialize_plugin()
 
-            if success:            
+            if success:
                 if self.update_only_mode:
                     self.build_metadata()
                     self.push_metadata()
@@ -171,9 +181,3 @@ class BasePlugin(ABC, EngineMixin):
             return success
 
         return True
-
-    def only_on_metadata_propagation(self):
-        pass
-
-    def only_on_run(self):
-        pass
