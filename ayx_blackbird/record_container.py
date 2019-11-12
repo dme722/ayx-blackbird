@@ -20,7 +20,7 @@ class RecordContainer:
             self.record_list = list(records)
 
     def add_record(self, record):
-        self._record_copier(self._record_creator, record)
+        self._record_copier.copy(self._record_creator, record)
         self.record_list.append(self._record_creator.finalize_record())
         self._record_creator.reset()
 
@@ -39,6 +39,9 @@ class RecordContainer:
 
     def __iter__(self):
         yield from self.record_list
+
+    def __len__(self):
+        return len(self.record_list)
 
 
 type_dict = {

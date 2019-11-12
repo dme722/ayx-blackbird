@@ -7,6 +7,7 @@ class OutputAnchor:
         self.record_container = record_container
 
         self._engine_anchor_ref = engine_output_anchor_mgr.get_output_anchor(name)
+        self._metadata_pushed = False
 
     def update_progress(self, percent):
         self._engine_anchor_ref.update_progress(percent)
@@ -15,7 +16,9 @@ class OutputAnchor:
         if self.record_info is None:
             raise ValueError("record_info must be set before metadata can be pushed.")
 
-        self._engine_anchor_ref.init(self.record_info)
+        if not self._metadata_pushed:
+            self._engine_anchor_ref.init(self.record_info)
+            self._metadata_pushed = True
 
     def push_records(self):
         for record in self.record_container:
