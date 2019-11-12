@@ -126,6 +126,11 @@ class BasePlugin(ABC, EngineMixin):
         for anchor in self.output_anchors:
             anchor.close()
 
+    def clear_all_input_records(self):
+        for anchor in self.input_anchors:
+            for connection in anchor.connections:
+                connection.record_container.clear_records()
+
     def update_progress(self):
         import numpy as np
         percent = np.mean(
@@ -135,6 +140,11 @@ class BasePlugin(ABC, EngineMixin):
                 for connection in anchor.connections
             ]
         )
+        self.info("Update progress:" + str([
+                connection.progress_percentage
+                for anchor in self.input_anchors
+                for connection in anchor.connections
+            ]))
 
         self.engine.output_tool_progress(self.tool_id, percent)
 
@@ -154,20 +164,22 @@ class BasePlugin(ABC, EngineMixin):
 
                     if not self.update_only_mode:
                         self.push_all_records()
+                        self.clear_all_input_records()
                     return
     
     def connection_closed_callback(self):
         if self.all_connections_closed:
             self.build_metadata_if_not_already_build()
 
-            if self.update_only_mode:
+            if not self.update_only_mode:
                 self.process_records()
                 self.on_complete()
 
             self.push_metadata()
 
-            if self.update_only_mode:
+            if not self.update_only_mode:
                 self.push_all_records()
+                self.clear_all_input_records()
 
             self.close_output_anchors()
 
