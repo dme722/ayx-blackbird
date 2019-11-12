@@ -1,17 +1,16 @@
-import os
-import sys
-from abc import ABC, abstractmethod 
+from abc import ABC, abstractmethod
 from types import SimpleNamespace
 
-from .input_anchor import InputAnchor
-from .output_anchor import OutputAnchor
 from .connection_interface import ConnectionInterface, ConnectionStatus
+from .engine_mixin import EngineMixin
+from .tool_configuration import ToolConfiguration
 
 import AlteryxPythonSDK as sdk
 
 import xmltodict
 
-class BasePlugin(ABC):
+
+class BasePlugin(ABC, EngineMixin):
     @abstractmethod
     def initialize_plugin(self):
         pass
@@ -33,35 +32,33 @@ class BasePlugin(ABC):
     def tool_name(self):
         pass
 
-    @property
-    def update_only_mode(self):
-        return (
-            self.engine.get_init_var(
-                self.tool_id, "UpdateOnly"
-            )
-            == "True"
-        )
-
-    @abstractmethod
-    @property
-    def _connection_interface_class(self):
-        pass
-
     @abstractmethod
     @property
     def record_batch_size(self):
         pass
 
-    @property
-    def _required_input_anchors(self):
-        return [anchor for anchor in self._input_anchors if not anchor.optional]
+    def __init__(
+        self,
+        n_tool_id: int,
+        alteryx_engine: sdk.AlteryxEngine,
+        output_anchor_mgr: sdk.OutputAnchorManager,
+    ) -> None:
+        self.workflow_config = {}
+        self.user_data = SimpleNamespace()
+        self._input_anchors = None
+        self._output_anchors = None
+        self.initialized = False
+        self.tool_id = n_tool_id
+        self.engine = alteryx_engine
+        self._output_anchor_mgr = output_anchor_mgr
+        self._tool_config = ToolConfiguration(self.tool_name)
 
     @property
     def all_connections_initialized(self):
         return all(
             [
-                connection.status != ConnectionStatus.CREATED 
-                for anchor in self._input_anchors 
+                connection.status != ConnectionStatus.CREATED
+                for anchor in self._input_anchors
                 for connection in anchor.connections
             ]
         )
@@ -70,45 +67,19 @@ class BasePlugin(ABC):
     def all_connections_closed(self):
         return all(
             [
-                connection.status == ConnectionStatus.CLOSED 
-                for anchor in self._input_anchors 
+                connection.status == ConnectionStatus.CLOSED
+                for anchor in self._input_anchors
                 for connection in anchor.connections
             ]
         )
 
-    def __init__(
-        self,
-        n_tool_id: int,
-        alteryxengine: sdk.AlteryxEngine,
-        output_anchor_mgr: sdk.OutputAnchorManager,
-    ) -> None:
-        self.workflow_config = {}
-        self.user_data = SimpleNamespace()
-        self._input_anchors = []
-        self._output_anchors = []
-        self.initialized = False
-        self.tool_id = n_tool_id
-        self.engine = alteryxengine
-        self._output_anchor_mgr = output_anchor_mgr
-        self._tool_config = self._get_tool_config()
-
-    def xmsg(self, message):
-        return message
-
-    def error(self, message):
-        self.engine.output_message(self.tool_id, sdk.EngineMessageType.error, message)
-    
-    def warning(self, message):
-        self.engine.output_message(self.tool_id, sdk.EngineMessageType.warning, message)
-
-    def info(self, message):
-        self.engine.output_message(self.tool_id, sdk.EngineMessageType.info, message)
+    @property
+    def required_input_anchors(self):
+        return [anchor for anchor in self._input_anchors if not anchor.optional]
 
     def pi_init(self, workflow_config_xml_string: str):
-        self._update_sys_path()
-
-        self._build_input_anchors()
-        self._build_output_anchors()
+        self._input_anchors = self._tool_config.build_input_anchors()
+        self._output_anchors = self._tool_config.build_output_anchors()
 
         self.workflow_config = xmltodict.parse(workflow_config_xml_string)["Configuration"]
 
@@ -118,76 +89,9 @@ class BasePlugin(ABC):
         ):
             self.initialized = self.initialize_plugin()
 
-    def _get_tool_config(self):
-        xml_files = [
-            file
-            for file in os.listdir(self._get_tool_path())
-            if file.lower().endswith(".xml")
-        ]
-
-        if len(xml_files) > 0:
-            raise RuntimeError("Multiple tool configuration XML files found. Only one can be present.")
-
-        config_filepath = os.path.join(self._get_tool_path(), xml_files[0])
-
-        with open(config_filepath) as fd:
-            tool_config = xmltodict.parse(fd.read())
-
-        return tool_config
-
-    def _get_tool_path(self):
-        return os.path.join(self._get_tools_location(), self.tool_name)
-
-    def _get_tools_location(self):
-        admin_path = os.path.join(os.environ["APPDATA"], "Alteryx", "Tools")
-        user_path = os.path.join(os.environ["PROGRAMDATA"], "Alteryx", "Tools")
-        if os.path.abspath(admin_path) in __file__:
-            return admin_path
-
-        if os.path.abspath(user_path) in __file__:
-            return user_path
-
-        raise RuntimeError("Tool is not located in Alteryx install locations.")
-    
-    def _update_sys_path(self):
-        """Update the sys path to include the current tools libs."""
-        tool_path = self._get_tool_path()
-        sys.path.append(tool_path)
-        sys.path.append(os.path.join(tool_path, "Lib", "site-packages"))
-
-    def _build_input_anchors(self):
-        anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
-
-        input_anchor_configs = anchor_settings["InputConnections"]["Connection"]
-        if not isinstance(input_anchor_configs, list):
-            input_anchor_configs = [input_anchor_configs]
-
-        for config in input_anchor_configs:
-            anchor_name = config["@Name"]
-            anchor_optional = config["@Optional"].lower() == "True"
-
-            self._input_anchors.append(InputAnchor(anchor_name, anchor_optional))
-
-    def _build_output_anchors(self):
-        anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
-
-        output_anchor_configs = anchor_settings["OutputConnections"]["Connection"]
-        if not isinstance(output_anchor_configs, list):
-            output_anchor_configs = [output_anchor_configs]
-
-        for config in output_anchor_configs:
-            anchor_name = config["@Name"]
-            anchor_optional = config["@Optional"].lower() == "True"
-
-            engine_output_anchor = self._output_anchor_mgr.get_output_anchor(
-                anchor_name
-            )
-
-            self._output_anchors.append(OutputAnchor(anchor_name, anchor_optional, engine_output_anchor))
-
     def pi_add_incoming_connection(self, anchor_name, connection_name):
         anchor = [a for a in self._input_anchors if a.name == anchor_name][0]
-        connection_interface = self._connection_interface_class(self, anchor, connection_name)
+        connection_interface = ConnectionInterface(self, anchor, connection_name)
         anchor.connections.append(connection_interface)
 
         return connection_interface
@@ -217,7 +121,7 @@ class BasePlugin(ABC):
             anchor.push_records()
 
     def pi_close(self, b_has_errors):
-        # pi_close is useless. Never use it. 
+        # pi_close is useless. Never use it.
         pass
 
     def push_metadata(self):
@@ -227,8 +131,6 @@ class BasePlugin(ABC):
     def close_output_anchors(self):
         for anchor in self._output_anchors:
             anchor.close()
-
-    
 
     def update_progress(self):
         import numpy as np

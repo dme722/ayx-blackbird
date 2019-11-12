@@ -1,5 +1,6 @@
 import AlteryxPythonSDK as sdk
 
+
 class RecordContainer:
     def __init__(self, record_info, records=None):
         self._record_info = record_info
@@ -26,15 +27,15 @@ class RecordContainer:
     def clear_records(self):
         self.record_list = []
 
-    def parse_records(self, format):
-        if format=="list":
+    def parse_records(self, format_):
+        if format_ == "list":
             # TODO
             pass
-        elif format=="dataframe":
+        elif format_ == "dataframe":
             # TODO
             pass
 
-        raise ValueError("Format must be list or dataframe.")
+        raise ValueError("format_ must be list or dataframe.")
 
 
 type_dict = {
