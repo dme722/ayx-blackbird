@@ -43,7 +43,7 @@ class ConnectionInterface:
         if self._plugin.update_only_mode:
             return
 
-        self.progress_percentage = d_percent
+        self.progress_percentage = max(d_percent, 0)
         self._plugin.update_progress()
 
     def ii_close(self):

@@ -93,6 +93,7 @@ class BasePlugin(ABC, EngineMixin):
     def pi_add_outgoing_connection(self, anchor_name):
         anchor = [a for a in self.output_anchors if a.name == anchor_name][0]
         anchor.num_connections += 1
+        return True
 
     def pi_push_all_records(self, n_record_limit):
         if len(self.required_input_anchors) == 0:
@@ -110,13 +111,13 @@ class BasePlugin(ABC, EngineMixin):
 
         return True
 
-    def push_all_records(self):
-        for anchor in self.output_anchors:
-            anchor.push_records()
-
     def pi_close(self, b_has_errors):
         # pi_close is useless. Never use it.
         pass
+
+    def push_all_records(self):
+        for anchor in self.output_anchors:
+            anchor.push_records()
 
     def push_metadata(self):
         for anchor in self.output_anchors:
@@ -140,11 +141,6 @@ class BasePlugin(ABC, EngineMixin):
                 for connection in anchor.connections
             ]
         )
-        self.info("Update progress:" + str([
-                connection.progress_percentage
-                for anchor in self.input_anchors
-                for connection in anchor.connections
-            ]))
 
         self.engine.output_tool_progress(self.tool_id, percent)
 
