@@ -8,7 +8,7 @@ class AyxPlugin(BasePlugin):
 
     @property
     def record_batch_size(self):
-        return 1
+        return 100
 
     def initialize_plugin(self):
         self.info(self.xmsg("Plugin initialized."))
