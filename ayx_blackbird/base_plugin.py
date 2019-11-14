@@ -11,33 +11,7 @@ from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 
 
-class BasePlugin(ABC, EngineMixin, ObservableMixin):
-    @property
-    @abstractmethod
-    def tool_name(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def record_batch_size(self) -> Optional[int]:
-        pass
-
-    @abstractmethod
-    def initialize_plugin(self) -> bool:
-        pass
-
-    @abstractmethod
-    def build_metadata(self) -> None:
-        pass
-
-    @abstractmethod
-    def process_records(self) -> None:
-        pass
-
-    @abstractmethod
-    def on_complete(self) -> None:
-        pass
-
+class BasePlugin(EngineMixin, ObservableMixin):
     def __init__(self, n_tool_id: int, alteryx_engine, output_anchor_mgr):
         self.workflow_config = None
         self.user_data = SimpleNamespace()
@@ -52,6 +26,56 @@ class BasePlugin(ABC, EngineMixin, ObservableMixin):
         self._metadata_built = False
 
         ObservableMixin.__init__(self)
+
+    @property
+    def all_connections_initialized(self) -> bool:
+        return all(
+            [
+                connection.status != ConnectionStatus.CREATED
+                for anchor in self.input_anchors
+                for connection in anchor.connections
+            ]
+        )
+
+    @property
+    def all_connections_closed(self) -> bool:
+        return all(
+            [
+                connection.status == ConnectionStatus.CLOSED
+                for anchor in self.input_anchors
+                for connection in anchor.connections
+            ]
+        )
+
+    @property
+    def required_input_anchors(self) -> List[InputAnchor]:
+        return [anchor for anchor in self.input_anchors if not anchor.optional]
+
+    @property
+    def tool_name(self) -> str:
+        return "BlackbirdExample"
+
+    @property
+    def record_batch_size(self) -> Optional[int]:
+        return 1
+
+    def initialize_plugin(self) -> bool:
+        self.info(self.xmsg("Plugin initialized."))
+        return True
+
+    def build_metadata(self) -> None:
+        self.info(self.xmsg("Metadata built."))
+        self.output_anchors[0].record_info = (
+            self.input_anchors[0].connections[0].record_info
+        )
+
+    def process_records(self) -> None:
+        self.output_anchors[0].record_container = (
+            self.input_anchors[0].connections[0].record_container
+        )
+
+    def on_complete(self) -> None:
+        self.info(self.xmsg("Completed processing records."))
 
     def pi_init(self, workflow_config_xml_string: str) -> None:
         self.workflow_config = WorkflowConfiguration(
@@ -107,7 +131,7 @@ class BasePlugin(ABC, EngineMixin, ObservableMixin):
             for connection in anchor.connections:
                 connection.record_container.clear_records()
 
-    def update_progress(self, _: ConnectionInterface) -> None:
+    def update_progress_callback(self, _: ConnectionInterface) -> None:
         import numpy as np
 
         percent = np.mean(
@@ -188,31 +212,7 @@ class BasePlugin(ABC, EngineMixin, ObservableMixin):
             ConnectionEvents.CONNECTION_CLOSED, self.connection_closed_callback
         )
         connection_interface.subscribe(
-            ConnectionEvents.PROGRESS_UPDATE, self.update_progress
+            ConnectionEvents.PROGRESS_UPDATE, self.update_progress_callback
         )
 
         return connection_interface
-
-    @property
-    def all_connections_initialized(self) -> bool:
-        return all(
-            [
-                connection.status != ConnectionStatus.CREATED
-                for anchor in self.input_anchors
-                for connection in anchor.connections
-            ]
-        )
-
-    @property
-    def all_connections_closed(self) -> bool:
-        return all(
-            [
-                connection.status == ConnectionStatus.CLOSED
-                for anchor in self.input_anchors
-                for connection in anchor.connections
-            ]
-        )
-
-    @property
-    def required_input_anchors(self) -> List[InputAnchor]:
-        return [anchor for anchor in self.input_anchors if not anchor.optional]
