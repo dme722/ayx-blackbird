@@ -37,6 +37,9 @@ class RecordContainer:
 
         raise ValueError("format_ must be list or dataframe.")
 
+    def copy(self):
+        return RecordContainer(self._record_info, self.record_list[:])
+
     def __iter__(self):
         yield from self.record_list
 

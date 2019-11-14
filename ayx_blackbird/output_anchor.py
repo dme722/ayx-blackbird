@@ -33,6 +33,9 @@ class OutputAnchor:
             self._metadata_pushed = True
 
     def push_records(self) -> None:
+        if not self._metadata_pushed:
+            raise RuntimeError("Must run push_metadata before push_records can be called.")
+
         for record in self.record_container:
             self._engine_anchor_ref.push_record(record, False)
 

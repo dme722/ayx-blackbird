@@ -10,3 +10,8 @@ class ConnectionEvents(Enum):
 
 class PluginEvents:
     PLUGIN_INITIALIZED = "plugin_initialized"
+    PI_INIT = "pi_init"
+    INCOMING_CONNECTION_ADDED = "pi_add_incoming_connection"
+    OUTGOING_CONNECTION_ADDED = "pi_add_outgoing_connection"
+    PI_CLOSE = "pi_close"
+    PI_PUSH_ALL_RECORDS = "pi_push_all_records"
