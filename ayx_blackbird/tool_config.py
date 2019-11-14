@@ -1,43 +1,40 @@
 import os
+from pathlib import Path
+from typing import List, Mapping
+
+import xmltodict
 
 from .input_anchor import InputAnchor
 from .output_anchor import OutputAnchor
 
-import xmltodict
-
 
 class ToolConfiguration:
-    def __init__(self, tool_name, output_anchor_mgr):
+    def __init__(self, tool_name: str, output_anchor_mgr):
         self.tool_name = tool_name
         self._tool_config = self._get_tool_config()
         self._output_anchor_mgr = output_anchor_mgr
 
-    def _get_tool_config(self):
+    def _get_tool_config(self) -> Mapping:
         with open(self._get_tool_config_filepath()) as fd:
             tool_config = xmltodict.parse(fd.read())
 
         return tool_config
 
-    def _get_tool_config_filepath(self):
-        return os.path.join(self._get_tool_path(), self.tool_name + "Config.xml")
+    def _get_tool_config_filepath(self) -> Path:
+        return Path(os.path.join(self._get_tool_path(), f"{self.tool_name}Config.xml"))
 
-    def _get_tool_path(self):
-        return os.path.join(self._get_tools_location(), self.tool_name)
+    def _get_tool_path(self) -> Path:
+        return Path(os.path.join(self._get_tools_location(), self.tool_name))
 
     @staticmethod
-    def _get_tools_location():
-        admin_path = os.path.join(os.environ["ALLUSERSPROFILE"], "Alteryx", "Tools")
+    def _get_tools_location() -> Path:
+        # TODO: Determine if user or admin
+        # admin_path = os.path.join(os.environ["ALLUSERSPROFILE"], "Alteryx", "Tools")
         user_path = os.path.join(os.environ["APPDATA"], "Alteryx", "Tools")
-        # if os.path.abspath(admin_path) in __file__:
-        #     return admin_path
-        #
-        # if os.path.abspath(user_path) in __file__:
-        #     return user_path
-        #
-        # raise RuntimeError("Tool is not located in Alteryx install locations.")
-        return user_path
 
-    def build_input_anchors(self):
+        return Path(user_path)
+
+    def build_input_anchors(self) -> List[InputAnchor]:
         anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
 
         input_anchor_configs = anchor_settings["InputConnections"]["Connection"]
@@ -49,7 +46,7 @@ class ToolConfiguration:
             for config in input_anchor_configs
         ]
 
-    def build_output_anchors(self):
+    def build_output_anchors(self) -> List[OutputAnchor]:
         anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
 
         output_anchor_configs = anchor_settings["OutputConnections"]["Connection"]
@@ -57,6 +54,10 @@ class ToolConfiguration:
             output_anchor_configs = [output_anchor_configs]
 
             return [
-                OutputAnchor(config["@Name"], config["@Optional"].lower() == "True", self._output_anchor_mgr)
+                OutputAnchor(
+                    config["@Name"],
+                    config["@Optional"].lower() == "True",
+                    self._output_anchor_mgr,
+                )
                 for config in output_anchor_configs
             ]

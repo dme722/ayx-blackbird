@@ -1,5 +1,17 @@
+from types import Optional
+
+from .record_container import RecordContainer
+
+
 class OutputAnchor:
-    def __init__(self, name, optional, engine_output_anchor_mgr, record_info=None, record_container=None):
+    def __init__(
+        self,
+        name: str,
+        optional: bool,
+        engine_output_anchor_mgr,
+        record_info=None,
+        record_container: Optional[RecordContainer] = None,
+    ):
         self.name = name
         self.optional = optional
         self.num_connections = 0
@@ -9,10 +21,10 @@ class OutputAnchor:
         self._engine_anchor_ref = engine_output_anchor_mgr.get_output_anchor(name)
         self._metadata_pushed = False
 
-    def update_progress(self, percent):
+    def update_progress(self, percent: float) -> None:
         self._engine_anchor_ref.update_progress(percent)
 
-    def push_metadata(self):
+    def push_metadata(self) -> None:
         if self.record_info is None:
             raise ValueError("record_info must be set before metadata can be pushed.")
 
@@ -20,9 +32,9 @@ class OutputAnchor:
             self._engine_anchor_ref.init(self.record_info)
             self._metadata_pushed = True
 
-    def push_records(self):
+    def push_records(self) -> None:
         for record in self.record_container:
             self._engine_anchor_ref.push_record(record, False)
 
-    def close(self):
+    def close(self) -> None:
         self._engine_anchor_ref.close()

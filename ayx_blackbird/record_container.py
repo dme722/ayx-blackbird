@@ -19,12 +19,12 @@ class RecordContainer:
         else:
             self.record_list = list(records)
 
-    def add_record(self, record):
+    def add_record(self, record) -> None:
         self._record_copier.copy(self._record_creator, record)
         self.record_list.append(self._record_creator.finalize_record())
         self._record_creator.reset()
 
-    def clear_records(self):
+    def clear_records(self) -> None:
         self.record_list = []
 
     def parse_records(self, format_):
@@ -61,7 +61,7 @@ type_dict = {
     "v_wstring": "get_as_string",
     "wstring": "get_as_string",
     "fixeddecimal": "get_as_double",
-    "spatialobj": "get_as_blob"
+    "spatialobj": "get_as_blob",
 }
 
 

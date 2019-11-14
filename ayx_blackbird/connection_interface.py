@@ -1,6 +1,6 @@
-from collections import defaultdict
 from enum import Enum
 
+from .events import ConnectionEvents, PluginEvents
 from .observable_mixin import ObservableMixin
 from .record_container import RecordContainer
 
@@ -22,37 +22,33 @@ class ConnectionInterface(ObservableMixin):
         self.status = ConnectionStatus.CREATED
         self.plugin_initialization_success = True
 
-        plugin.subscribe("all_connections_initialized", self.plugin_initialization_callback)
+        plugin.subscribe(
+            PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
+        )
 
-        self._plugin = plugin
-
-    def plugin_initialization_callback(self, value):
-        self.plugin_initialization_success = bool(value)
+    def plugin_initialization_callback(self, value: bool):
+        self.plugin_initialization_success = value
 
     def ii_init(self, record_info):
+        self.status = ConnectionStatus.INITIALIZED
         self.record_info = record_info
         self.record_container = RecordContainer(self.record_info)
-        self.status = ConnectionStatus.INITIALIZED
 
-        self.notify_topic("connection_initialized", self)
+        self.notify_topic(ConnectionEvents.CONNECTION_INITIALIZED, self)
 
         return self.plugin_initialization_success
 
     def ii_push_record(self, record):
         self.status = ConnectionStatus.RECEIVING_RECORDS
-
         self.record_container.add_record(record)
-
-        self.notify_topic("record_received", self)
+        self.notify_topic(ConnectionEvents.RECORD_RECEIVED, self)
 
         return True
 
-    def ii_update_progress(self, d_percent):
+    def ii_update_progress(self, d_percent: float):
         self.progress_percentage = max(d_percent, 0)
-        self._plugin.update_progress()
+        self.notify_topic(ConnectionEvents.PROGRESS_UPDATE, self)
 
     def ii_close(self):
         self.status = ConnectionStatus.CLOSED
-        # self._plugin.connection_closed_callback()
-        self.notify_topic("connection_closed", self)
-
+        self.notify_topic(ConnectionEvents.CONNECTION_CLOSED, self)

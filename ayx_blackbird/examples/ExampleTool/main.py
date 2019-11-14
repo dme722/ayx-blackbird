@@ -16,11 +16,14 @@ class AyxPlugin(BasePlugin):
 
     def build_metadata(self):
         self.info(self.xmsg("Metadata built."))
-        self.output_anchors[0].record_info = self.input_anchors[0].connections[0].record_info
+        self.output_anchors[0].record_info = (
+            self.input_anchors[0].connections[0].record_info
+        )
 
     def process_records(self):
-        self.output_anchors[0].record_container = self.input_anchors[0].connections[0].record_container
+        self.output_anchors[0].record_container = (
+            self.input_anchors[0].connections[0].record_container
+        )
 
     def on_complete(self):
         self.info(self.xmsg("Completed processing records."))
-
