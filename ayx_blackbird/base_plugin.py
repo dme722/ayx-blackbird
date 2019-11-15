@@ -1,7 +1,8 @@
 from typing import List, Optional
 
+from .anchor_utils_mixin import AnchorUtilsMixin
 from .callback_strategy import UpdateOnlyCallbackStrategy, WorkflowRunCallbackStrategy
-from .connection_interface import ConnectionInterface, ConnectionStatus
+from .connection_interface import ConnectionInterface
 from .engine_proxy import EngineProxy
 from .events import ConnectionEvents, PluginEvents
 from .input_anchor import InputAnchor
@@ -10,8 +11,9 @@ from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 
 
-class BasePlugin(ObservableMixin):
+class BasePlugin(AnchorUtilsMixin, ObservableMixin):
     def __init__(self, tool_id: int, alteryx_engine, output_anchor_mgr):
+        AnchorUtilsMixin.__init__(self)
         ObservableMixin.__init__(self)
 
         self.engine = EngineProxy(alteryx_engine, tool_id)
@@ -31,8 +33,29 @@ class BasePlugin(ObservableMixin):
         self, anchor_name: str, connection_name: str
     ) -> ConnectionInterface:
         anchor = [a for a in self.input_anchors if a.name == anchor_name][0]
-        anchor.connections.append(self._build_connection(connection_name))
-        return anchor.connections[-1]
+
+        connection = ConnectionInterface(self, connection_name)
+        anchor.connections.append(connection)
+        self._subscribe_to_connection(connection)
+        return connection
+
+    def _subscribe_to_connection(self, connection):
+        connection.subscribe(
+            ConnectionEvents.CONNECTION_INITIALIZED,
+            self.callback_strategy.connection_initialized_callback,
+        )
+        connection.subscribe(
+            ConnectionEvents.RECORD_RECEIVED,
+            self.callback_strategy.single_record_received_callback,
+        )
+        connection.subscribe(
+            ConnectionEvents.CONNECTION_CLOSED,
+            self.callback_strategy.connection_closed_callback,
+        )
+        connection.subscribe(
+            ConnectionEvents.PROGRESS_UPDATE,
+            self.callback_strategy.update_progress_callback,
+        )
 
     def pi_add_outgoing_connection(self, anchor_name: str) -> bool:
         anchor = [a for a in self.output_anchors if a.name == anchor_name][0]
@@ -55,47 +78,8 @@ class BasePlugin(ObservableMixin):
         """pi_close is useless. Never use it."""
         pass
 
-    def push_all_records(self) -> None:
-        for anchor in self.output_anchors:
-            anchor.push_records()
-
-    def push_all_metadata(self) -> None:
-        if not self._metadata_pushed:
-            for anchor in self.output_anchors:
-                anchor.push_metadata()
-
-    def close_output_anchors(self) -> None:
-        for anchor in self.output_anchors:
-            anchor.close()
-
-    def clear_all_input_records(self) -> None:
-        for anchor in self.input_anchors:
-            for connection in anchor.connections:
-                connection.record_container.clear_records()
-
     def _run_plugin_initialization(self):
         self.notify_topic(PluginEvents.PLUGIN_INITIALIZED, self.initialize_plugin())
-
-    def _build_connection(self, name: str) -> ConnectionInterface:
-        connection_interface = ConnectionInterface(self, name)
-        connection_interface.subscribe(
-            ConnectionEvents.CONNECTION_INITIALIZED,
-            self.callback_strategy.connection_initialized_callback,
-        )
-        connection_interface.subscribe(
-            ConnectionEvents.RECORD_RECEIVED,
-            self.callback_strategy.single_record_received_callback,
-        )
-        connection_interface.subscribe(
-            ConnectionEvents.CONNECTION_CLOSED,
-            self.callback_strategy.connection_closed_callback,
-        )
-        connection_interface.subscribe(
-            ConnectionEvents.PROGRESS_UPDATE,
-            self.callback_strategy.update_progress_callback,
-        )
-
-        return connection_interface
 
     @property
     def callback_strategy(self):
@@ -103,26 +87,6 @@ class BasePlugin(ObservableMixin):
             WorkflowRunCallbackStrategy
             if not self.engine.update_only_mode
             else UpdateOnlyCallbackStrategy
-        )
-
-    @property
-    def all_connections_initialized(self) -> bool:
-        return all(
-            [
-                connection.status != ConnectionStatus.CREATED
-                for anchor in self.input_anchors
-                for connection in anchor.connections
-            ]
-        )
-
-    @property
-    def all_connections_closed(self) -> bool:
-        return all(
-            [
-                connection.status == ConnectionStatus.CLOSED
-                for anchor in self.input_anchors
-                for connection in anchor.connections
-            ]
         )
 
     @property
@@ -152,6 +116,7 @@ class BasePlugin(ObservableMixin):
             self.input_anchors[0].connections[0].record_container.copy()
         )
         self.push_all_records()
+        self.clear_all_input_records()
 
     def on_complete(self) -> None:
         self.engine.info(self.engine.xmsg("Completed processing records."))
