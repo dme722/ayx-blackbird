@@ -11,8 +11,8 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>ExampleTool</Name>
-      <Description>Example Tool</Description>
+      <Name>Blackbird Example</Name>
+      <Description>Blackbird Example</Description>
       <ToolVersion>1.0</ToolVersion>
       <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>

@@ -43,3 +43,7 @@ class EngineProxy:
                 sdk.Status.update_output_config_xml,
                 xmltodict.unparse({"Configuration": workflow_config.data}),
             )
+
+    def __getattr__(self, name):
+        """Defer undefined methods to normal engine."""
+        return getattr(self._engine, name)

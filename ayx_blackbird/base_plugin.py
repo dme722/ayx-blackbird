@@ -1,3 +1,4 @@
+"""Base plugin definition."""
 from typing import List, Optional
 
 from .anchor_utils_mixin import AnchorUtilsMixin
@@ -17,18 +18,20 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
         AnchorUtilsMixin.__init__(self)
         ObservableMixin.__init__(self)
 
+        self.tool_id = tool_id
         self.engine = EngineProxy(alteryx_engine, tool_id)
 
         self.tool_config = ToolConfiguration(self.tool_name, output_anchor_mgr)
 
-        self.input_anchors = self.tool_config.build_input_anchors()
-        self.output_anchors = self.tool_config.build_output_anchors()
-
         # These properties get assigned in pi_init
+        self.input_anchors = None
+        self.output_anchors = None
         self.workflow_config = None
 
     def pi_init(self, workflow_config_xml_string: str) -> None:
         """Plugin initialization from the engine."""
+        self.input_anchors = self.tool_config.build_input_anchors()
+        self.output_anchors = self.tool_config.build_output_anchors()
         self.workflow_config = WorkflowConfiguration(workflow_config_xml_string)
 
     def pi_add_incoming_connection(

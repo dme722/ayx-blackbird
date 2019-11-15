@@ -27,7 +27,7 @@ class RecordContainer:
     def clear_records(self) -> None:
         self.record_list = []
 
-    def parse_records(self, format_):
+    def parse_records(self, format_, fields=None):
         if format_ == "list":
             # TODO
             pass
