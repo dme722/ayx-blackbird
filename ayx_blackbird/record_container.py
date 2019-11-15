@@ -24,6 +24,9 @@ class RecordContainer:
         self.record_list.append(self._record_creator.finalize_record())
         self._record_creator.reset()
 
+    def set_records_from_container(self, other) -> None:
+        self.record_list = other.record_list
+
     def clear_records(self) -> None:
         self.record_list = []
 
@@ -36,9 +39,6 @@ class RecordContainer:
             pass
 
         raise ValueError("format_ must be list or dataframe.")
-
-    def copy(self):
-        return RecordContainer(self._record_info, self.record_list[:])
 
     def __iter__(self):
         yield from self.record_list

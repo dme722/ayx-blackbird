@@ -12,9 +12,8 @@ class AnchorUtilsMixin:
 
     def push_all_metadata(self) -> None:
         """Push all metadata for anchors."""
-        if not self._metadata_pushed:
-            for anchor in self.output_anchors:
-                anchor.push_metadata()
+        for anchor in self.output_anchors:
+            anchor.push_metadata()
 
     def close_output_anchors(self) -> None:
         """Close connection for all output anchors."""

@@ -69,7 +69,7 @@ class OutputAnchor:
         for record in self.record_container:
             self._engine_anchor_ref.push_record(record, False)
 
-        self.record_container.clear_records()
+        # self.record_container.clear_records()
 
     def close(self) -> None:
         """Close the output anchor."""

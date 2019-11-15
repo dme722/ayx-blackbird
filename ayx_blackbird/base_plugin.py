@@ -2,7 +2,7 @@
 from typing import List, Optional
 
 from .anchor_utils_mixin import AnchorUtilsMixin
-from .callback_strategy import ConnectionCallbackStrategy, UpdateOnlyConnectionCallbackStrategy, WorkflowRunConnectionCallbackStrategy
+from .connection_callback_strategy import ConnectionCallbackStrategy, UpdateOnlyConnectionCallbackStrategy, WorkflowRunConnectionCallbackStrategy
 from .connection_interface import ConnectionInterface
 from .engine_proxy import EngineProxy
 from .events import ConnectionEvents, PluginEvents
@@ -95,9 +95,9 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
     def callback_strategy(self) -> ConnectionCallbackStrategy:
         """Generate the callback strategy for the tool"""
         return (
-            UpdateOnlyConnectionCallbackStrategy
-            if not self.engine.update_only_mode
-            else WorkflowRunConnectionCallbackStrategy
+            UpdateOnlyConnectionCallbackStrategy(self)
+            if self.engine.update_only_mode
+            else WorkflowRunConnectionCallbackStrategy(self)
         )
 
     @property
@@ -120,7 +120,7 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
         """Initialize plugin."""
         self.engine.info(self.engine.xmsg("Plugin initialized."))
         self.output_anchors[0].record_info = (
-            self.input_anchors[0].connections[0].record_info
+            self.input_anchors[0].connections[0].record_info.clone()
         )
         self.push_all_metadata()
         self.engine.info(self.engine.xmsg("Metadata built."))
@@ -128,8 +128,8 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
 
     def process_records(self) -> None:
         """Process records in batches."""
-        self.output_anchors[0].record_container = (
-            self.input_anchors[0].connections[0].record_container.copy()
+        self.output_anchors[0].record_container.record_list = (
+            self.input_anchors[0].connections[0].record_container.record_list
         )
         self.push_all_records()
         self.clear_all_input_records()
