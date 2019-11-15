@@ -1,3 +1,4 @@
+"""Alteryx tool configuration definition."""
 import os
 from pathlib import Path
 from typing import List, Mapping
@@ -9,7 +10,10 @@ from .output_anchor import OutputAnchor
 
 
 class ToolConfiguration:
+    """Tool configuration definition."""
+
     def __init__(self, tool_name: str, output_anchor_mgr):
+        """Initialize a tool configuration."""
         self.tool_name = tool_name
         self._tool_config = self._get_tool_config()
         self._output_anchor_mgr = output_anchor_mgr
@@ -35,6 +39,7 @@ class ToolConfiguration:
         return Path(user_path)
 
     def build_input_anchors(self) -> List[InputAnchor]:
+        """Build the input anchors based on tool config settings."""
         anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
 
         input_anchor_configs = anchor_settings["InputConnections"]["Connection"]
@@ -47,6 +52,7 @@ class ToolConfiguration:
         ]
 
     def build_output_anchors(self) -> List[OutputAnchor]:
+        """Build the output anchors based on tool config settings."""
         anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
 
         output_anchor_configs = anchor_settings["OutputConnections"]["Connection"]

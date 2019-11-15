@@ -1,3 +1,6 @@
+"""Validator definitions."""
+
+
 def validate_object_type(val, cls):
     """Check that a value is an instance of a given class."""
     if not isinstance(val, cls):
@@ -5,5 +8,6 @@ def validate_object_type(val, cls):
 
 
 def validate_iterable_of_type(val, cls):
+    """Validate that val is an iterable of objects of type cls."""
     for el in val:
         validate_object_type(el, cls)
