@@ -22,7 +22,7 @@ class ConnectionInterface(ObservableMixin):
         super().__init__()
         self.name = connection_name
         self.record_container = None
-        self.record_info = None
+        self.__record_info = None
         self.progress_percentage = 0.0
         self.status = ConnectionStatus.CREATED
         self.plugin_initialization_success = True
@@ -31,6 +31,10 @@ class ConnectionInterface(ObservableMixin):
             PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
         )
 
+    def record_info(self):
+        """Getter for record info."""
+        return self.__record_info
+
     def plugin_initialization_callback(self, value: bool):
         """Callback for when the plugin initialization code runs."""
         self.plugin_initialization_success = value
@@ -38,7 +42,7 @@ class ConnectionInterface(ObservableMixin):
     def ii_init(self, record_info):
         """Initialize the connection."""
         self.status = ConnectionStatus.INITIALIZED
-        self.record_info = record_info
+        self.__record_info = record_info
         self.record_container = RecordContainer(self.record_info)
 
         self.notify_topic(ConnectionEvents.CONNECTION_INITIALIZED, self)

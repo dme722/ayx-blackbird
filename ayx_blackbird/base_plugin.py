@@ -123,13 +123,12 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
             self.input_anchors[0].connections[0].record_info.clone()
         )
         self.push_all_metadata()
-        self.engine.info(self.engine.xmsg("Metadata built."))
         return True
 
     def process_records(self) -> None:
         """Process records in batches."""
-        self.output_anchors[0].record_container.record_list = (
-            self.input_anchors[0].connections[0].record_container.record_list
+        self.output_anchors[0].record_container.set_records_from_container(
+            self.input_anchors[0].connections[0].record_container
         )
         self.push_all_records()
         self.clear_all_input_records()
