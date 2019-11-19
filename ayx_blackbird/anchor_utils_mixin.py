@@ -1,5 +1,8 @@
 """AnchorUtilsMixin class definition."""
+from typing import List
+
 from .connection_interface import ConnectionStatus
+from .input_anchor import InputAnchor
 
 
 class AnchorUtilsMixin:
@@ -26,6 +29,14 @@ class AnchorUtilsMixin:
             for connection in anchor.connections:
                 connection.record_container.clear_records()
 
+    def get_input_anchor(self, input_anchor_name):
+        """Get an input anchor by name."""
+        return [anchor for anchor in self.input_anchors if anchor.name == input_anchor_name][0]
+
+    def get_output_anchor(self, output_anchor_name):
+        """Get an output anchor by name"""
+        return [anchor for anchor in self.output_anchors if anchor.name == output_anchor_name][0]
+
     @property
     def all_connections_initialized(self) -> bool:
         """Getter for if all input connections are initialized."""
@@ -47,3 +58,8 @@ class AnchorUtilsMixin:
                 for connection in anchor.connections
             ]
         )
+
+    @property
+    def required_input_anchors(self) -> List[InputAnchor]:
+        """Get the list of required input anchors for this tool."""
+        return [anchor for anchor in self.input_anchors if not anchor.optional]

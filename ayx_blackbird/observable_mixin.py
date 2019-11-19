@@ -27,4 +27,3 @@ class ObservableMixin:
         for callback in self._subscribers_to_all:
             callback(payload)
 
-        logger.debug(str(event) + str(payload))

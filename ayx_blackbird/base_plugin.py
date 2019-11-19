@@ -74,9 +74,9 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
         """Push all records when no inputs are connected."""
         if len(self.required_input_anchors) == 0:
             success = self.initialize_plugin()
-            if success:
+            if success and self.engine.update_only_mode:
                 self.on_complete()
-                self.close_output_anchors()
+            self.close_output_anchors()
 
             return success
 
@@ -100,11 +100,6 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
             else WorkflowRunConnectionCallbackStrategy(self)
         )
 
-    @property
-    def required_input_anchors(self) -> List[InputAnchor]:
-        """Get the list of required input anchors for this tool."""
-        return [anchor for anchor in self.input_anchors if not anchor.optional]
-
     """All properties below this point can/should be overridden for custom tools."""
     @property
     def tool_name(self) -> str:
@@ -119,17 +114,18 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
     def initialize_plugin(self) -> bool:
         """Initialize plugin."""
         self.engine.info(self.engine.xmsg("Plugin initialized."))
-        self.output_anchors[0].record_info = (
-            self.input_anchors[0].connections[0].record_info.clone()
+        self.input_anchor = self.get_input_anchor("Input")
+        self.output_anchor = self.get_output_anchor("Output")
+
+        self.output_anchor.record_info = (
+            self.input_anchor.connections[0].record_info.clone()
         )
         self.push_all_metadata()
         return True
 
     def process_records(self) -> None:
         """Process records in batches."""
-        self.output_anchors[0].record_container.set_records_from_container(
-            self.input_anchors[0].connections[0].record_container
-        )
+        self.output_anchor.set_records(self.input_anchor.connections[0])
         self.push_all_records()
         self.clear_all_input_records()
 

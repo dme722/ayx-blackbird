@@ -31,9 +31,13 @@ class ConnectionInterface(ObservableMixin):
             PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
         )
 
+    @property
     def record_info(self):
         """Getter for record info."""
         return self.__record_info
+
+    def get_dataframe(self):
+        return self.record_container.parse_to_df()
 
     def plugin_initialization_callback(self, value: bool):
         """Callback for when the plugin initialization code runs."""
@@ -66,3 +70,9 @@ class ConnectionInterface(ObservableMixin):
         """Close the connection."""
         self.status = ConnectionStatus.CLOSED
         self.notify_topic(ConnectionEvents.CONNECTION_CLOSED, self)
+
+    def __len__(self):
+        return len(self.record_container)
+
+    def __iter__(self):
+        yield from self.record_container

@@ -74,3 +74,10 @@ class OutputAnchor:
     def close(self) -> None:
         """Close the output anchor."""
         self._engine_anchor_ref.close()
+
+    def push_dataframe(self, df) -> None:
+        self.record_container.set_from_df(df)
+        self.push_records()
+
+    def __getattr__(self, item):
+        return getattr(self.record_container, item)
