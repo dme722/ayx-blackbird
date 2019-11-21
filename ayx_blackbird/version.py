@@ -1,2 +1,2 @@
 """ayx-blackbird version."""
-__version__ = "1.0.0-alpha0"
+__version__ = "1.0.0-alpha1"
