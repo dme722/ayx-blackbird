@@ -8,6 +8,7 @@ from .record_container import RecordContainer
 
 class ConnectionStatus(Enum):
     """Connection states."""
+
     CREATED = 0
     INITIALIZED = 1
     RECEIVING_RECORDS = 2

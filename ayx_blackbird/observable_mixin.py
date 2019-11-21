@@ -26,4 +26,3 @@ class ObservableMixin:
 
         for callback in self._subscribers_to_all:
             callback(payload)
-

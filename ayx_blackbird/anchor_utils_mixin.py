@@ -31,11 +31,17 @@ class AnchorUtilsMixin:
 
     def get_input_anchor(self, input_anchor_name):
         """Get an input anchor by name."""
-        return [anchor for anchor in self.input_anchors if anchor.name == input_anchor_name][0]
+        return [
+            anchor for anchor in self.input_anchors if anchor.name == input_anchor_name
+        ][0]
 
     def get_output_anchor(self, output_anchor_name):
         """Get an output anchor by name"""
-        return [anchor for anchor in self.output_anchors if anchor.name == output_anchor_name][0]
+        return [
+            anchor
+            for anchor in self.output_anchors
+            if anchor.name == output_anchor_name
+        ][0]
 
     @property
     def all_connections_initialized(self) -> bool:

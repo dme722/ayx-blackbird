@@ -6,6 +6,7 @@ from .connection_interface import ConnectionInterface
 
 class ConnectionCallbackStrategy(ABC):
     """ABC for callback strategy."""
+
     def __init__(self, plugin):
         self.plugin = plugin
 
@@ -65,6 +66,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
 
 class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for update only runs."""
+
     def single_record_received_callback(self, connection: ConnectionInterface) -> None:
         """Do nothing since update only mode and records can't be received."""
         pass

@@ -1,8 +1,13 @@
 """Base plugin definition."""
+from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from .anchor_utils_mixin import AnchorUtilsMixin
-from .connection_callback_strategy import ConnectionCallbackStrategy, UpdateOnlyConnectionCallbackStrategy, WorkflowRunConnectionCallbackStrategy
+from .connection_callback_strategy import (
+    ConnectionCallbackStrategy,
+    UpdateOnlyConnectionCallbackStrategy,
+    WorkflowRunConnectionCallbackStrategy,
+)
 from .connection_interface import ConnectionInterface
 from .engine_proxy import EngineProxy
 from .events import ConnectionEvents, PluginEvents
@@ -11,17 +16,10 @@ from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 
 
-DEBUG = False
-
-
-class BasePlugin(AnchorUtilsMixin, ObservableMixin):
+class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     """Base plugin to inherit from."""
-    def __init__(self, tool_id: int, alteryx_engine, output_anchor_mgr):
-        if DEBUG:
-            import cProfile
-            self.pr = cProfile.Profile()
-            self.pr.enable()
 
+    def __init__(self, tool_id: int, alteryx_engine, output_anchor_mgr):
         AnchorUtilsMixin.__init__(self)
         ObservableMixin.__init__(self)
 
@@ -108,40 +106,29 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
         )
 
     """All properties below this point can/should be overridden for custom tools."""
-    @property
-    def tool_name(self) -> str:
-        """Get the tool name."""
-        return "BlackbirdExample"
 
     @property
+    @abstractmethod
+    def tool_name(self) -> str:
+        """Get the tool name."""
+        pass
+
+    @property
+    @abstractmethod
     def record_batch_size(self) -> Optional[int]:
         """Get the record batch size."""
-        return 1000
+        pass
 
     def initialize_plugin(self) -> bool:
         """Initialize plugin."""
-        self.engine.info(self.engine.xmsg("Plugin initialized."))
-        self.input_anchor = self.get_input_anchor("Input")
-        self.output_anchor = self.get_output_anchor("Output")
+        pass
 
-        self.output_anchor.record_info = (
-            self.input_anchor.connections[0].record_info.clone()
-        )
-        self.push_all_metadata()
-        return True
-
+    @abstractmethod
     def process_records(self) -> None:
         """Process records in batches."""
-        self.output_anchor.record_container.set_records(self.input_anchor.connections[0].record_container)
+        pass
 
-        self.push_all_records()
-        self.clear_all_input_records()
-
+    @abstractmethod
     def on_complete(self) -> None:
         """Finalizer for plugin."""
-        self.engine.info(self.engine.xmsg("Completed processing records."))
-        if DEBUG:
-            import pstats
-            self.pr.disable()
-            ps = pstats.Stats(self.pr).sort_stats('cumulative')
-            ps.dump_stats('profile.pstats')
+        pass

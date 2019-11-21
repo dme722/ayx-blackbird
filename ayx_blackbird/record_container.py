@@ -16,7 +16,7 @@ class RecordContainer:
 
         self._records = []
 
-        self._fields = {field.name: FieldProxy(field)for field in record_info}
+        self._fields = {field.name: FieldProxy(field) for field in record_info}
 
     def add_record(self, record) -> None:
         record_creator = self._get_record_creator()
@@ -37,7 +37,9 @@ class RecordContainer:
 
     def set_from_df(self, df):
         if set(list(df)) != set(self._fields.keys()):
-            raise ValueError("Dataframe must contain same columns as record container fields.")
+            raise ValueError(
+                "Dataframe must contain same columns as record container fields."
+            )
 
         self.clear_records()
 

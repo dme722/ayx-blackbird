@@ -4,6 +4,7 @@ from enum import Enum
 
 class ConnectionEvents(Enum):
     """Events for connection objects."""
+
     CONNECTION_INITIALIZED = "connection_initialized"
     RECORD_RECEIVED = "record_received"
     PROGRESS_UPDATE = "progress_update"
@@ -12,6 +13,7 @@ class ConnectionEvents(Enum):
 
 class PluginEvents:
     """Events for plugin objects."""
+
     PLUGIN_INITIALIZED = "plugin_initialized"
     PI_INIT = "pi_init"
     INCOMING_CONNECTION_ADDED = "pi_add_incoming_connection"

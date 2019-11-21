@@ -8,6 +8,7 @@ from .workflow_config import WorkflowConfiguration
 
 class EngineProxy:
     """Proxy for the engine with a simplified interface."""
+
     def __init__(self, engine, tool_id):
         self._engine = engine
         self._tool_id = tool_id

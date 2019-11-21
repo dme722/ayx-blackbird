@@ -6,12 +6,9 @@ from .record_container import RecordContainer
 
 class OutputAnchor:
     """Output anchor definition."""
+
     def __init__(
-        self,
-        name: str,
-        optional: bool,
-        engine_output_anchor_mgr,
-        record_info=None
+        self, name: str, optional: bool, engine_output_anchor_mgr, record_info=None
     ):
         """Initialize an output anchor."""
         self._engine_anchor_ref = engine_output_anchor_mgr.get_output_anchor(name)
@@ -30,7 +27,9 @@ class OutputAnchor:
     def record_container(self):
         """Getter for record container."""
         if self.__record_container is None:
-            raise RuntimeError("Output record_info must be specified before output record container can be accessed.")
+            raise RuntimeError(
+                "Output record_info must be specified before output record container can be accessed."
+            )
 
         return self.__record_container
 
@@ -64,7 +63,9 @@ class OutputAnchor:
     def push_records(self) -> None:
         """Push records out."""
         if not self._metadata_pushed:
-            raise RuntimeError("Must run push_metadata before push_records can be called.")
+            raise RuntimeError(
+                "Must run push_metadata before push_records can be called."
+            )
 
         for record in self.record_container:
             self._engine_anchor_ref.push_record(record.finalize_record(), False)
