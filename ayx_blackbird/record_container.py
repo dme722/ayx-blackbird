@@ -1,8 +1,10 @@
 import AlteryxPythonSDK as sdk
 
+NULL_VALUE_PLACEHOLDER = "BLACKBIRD_NULL_VALUE_PLACEHOLDER"
+
 
 class RecordContainer:
-    def __init__(self, record_info, records=None):
+    def __init__(self, record_info):
         self._record_info = record_info
 
         self._record_copier = sdk.RecordCopier(record_info, record_info)
@@ -12,61 +14,69 @@ class RecordContainer:
 
         self._record_copier.done_adding()
 
-        self._record_creator = self._record_info.construct_record_creator()
-
-        if records is None:
-            self.record_list = []
-        else:
-            self.record_list = list(records)
+        self._records = []
 
         self._fields = {field.name: FieldProxy(field)for field in record_info}
 
-    def add_record(self, record, copy=True) -> None:
-        if copy:
-            self._record_copier.copy(self._record_creator, record)
-            record = self._record_creator.finalize_record()
-            self._record_creator.reset()
+    def add_record(self, record) -> None:
+        record_creator = self._get_record_creator()
+        self._record_copier.copy(record_creator, record)
+        self._records.append(record_creator)
 
-        self.record_list.append(record)
+    def _get_record_creator(self):
+        return self._record_info.construct_record_creator()
+
+    def add_record_creator(self, record_creator) -> None:
+        self._records.append(record_creator)
 
     def set_records(self, other) -> None:
-        self.record_list = other
+        self._records = other._records[:]
 
     def clear_records(self) -> None:
-        self.record_list = []
+        self._records = []
 
     def set_from_df(self, df):
         if set(list(df)) != set(self._fields.keys()):
             raise ValueError("Dataframe must contain same columns as record container fields.")
 
         self.clear_records()
-        for column_name in list(df):
-            for _, value in df[column_name].items():
-                field = self._fields[column_name]
-                field.set(self._record_creator, value)
 
-        self.add_record(self._record_creator.finalize_record(), copy=False)
+        self._fill_nulls_with_blackbird_nulls(df)
+
+        for _, row in df.iterrows():
+            record_creator = self._record_info.construct_record_creator()
+            for column_name in list(df):
+                field = self._fields[column_name]
+                field.set(record_creator, row[column_name])
+
+            self.add_record_creator(record_creator)
 
     def parse_to_df(self, field_names=None):
         import pandas as pd
 
         if field_names is None:
-            fields = self._fields
+            fields = [field for _, field in self._fields.items()]
         else:
             fields = [self._fields[field_name] for field_name in field_names]
 
-        return pd.DataFrame(
-            {
-                field.name: [field.get(record) for record in self]
-                for field in fields
-            }
-        )
+        field_values = {field.name: [] for field in fields}
+        for record_creator in self:
+            record = record_creator.finalize_record()
+
+            for field in fields:
+                field_values[field.name].append(field.get(record))
+
+        return pd.DataFrame(field_values)
+
+    @staticmethod
+    def _fill_nulls_with_blackbird_nulls(df):
+        df.fillna(NULL_VALUE_PLACEHOLDER, inplace=True)
 
     def __iter__(self):
-        yield from self.record_list
+        yield from self._records
 
     def __len__(self):
-        return len(self.record_list)
+        return len(self._records)
 
 
 class FieldProxy:
@@ -137,19 +147,11 @@ class FieldProxy:
         self._caster = self.field_cast_map[field_type]
 
     def get(self, record):
-        return self._caster(self._getter(record))
+        return self._getter(record)
 
     def set(self, record_creator, value):
-        import numpy as np
-
-        if value is None:
+        if value is None or value == NULL_VALUE_PLACEHOLDER:
             return self.set_null(record_creator)
-
-        try:
-            if not np.isfinite(value):
-                return self.set_null(record_creator)
-        except TypeError:
-            pass
 
         return self._setter(record_creator, self._caster(value))
 

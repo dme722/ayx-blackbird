@@ -6,15 +6,22 @@ from .connection_callback_strategy import ConnectionCallbackStrategy, UpdateOnly
 from .connection_interface import ConnectionInterface
 from .engine_proxy import EngineProxy
 from .events import ConnectionEvents, PluginEvents
-from .input_anchor import InputAnchor
 from .observable_mixin import ObservableMixin
 from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 
 
+DEBUG = False
+
+
 class BasePlugin(AnchorUtilsMixin, ObservableMixin):
     """Base plugin to inherit from."""
     def __init__(self, tool_id: int, alteryx_engine, output_anchor_mgr):
+        if DEBUG:
+            import cProfile
+            self.pr = cProfile.Profile()
+            self.pr.enable()
+
         AnchorUtilsMixin.__init__(self)
         ObservableMixin.__init__(self)
 
@@ -109,7 +116,7 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
     @property
     def record_batch_size(self) -> Optional[int]:
         """Get the record batch size."""
-        return 1
+        return 1000
 
     def initialize_plugin(self) -> bool:
         """Initialize plugin."""
@@ -125,10 +132,16 @@ class BasePlugin(AnchorUtilsMixin, ObservableMixin):
 
     def process_records(self) -> None:
         """Process records in batches."""
-        self.output_anchor.set_records(self.input_anchor.connections[0])
+        self.output_anchor.record_container.set_records(self.input_anchor.connections[0].record_container)
+
         self.push_all_records()
         self.clear_all_input_records()
 
     def on_complete(self) -> None:
         """Finalizer for plugin."""
         self.engine.info(self.engine.xmsg("Completed processing records."))
+        if DEBUG:
+            import pstats
+            self.pr.disable()
+            ps = pstats.Stats(self.pr).sort_stats('cumulative')
+            ps.dump_stats('profile.pstats')

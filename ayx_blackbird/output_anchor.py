@@ -67,7 +67,7 @@ class OutputAnchor:
             raise RuntimeError("Must run push_metadata before push_records can be called.")
 
         for record in self.record_container:
-            self._engine_anchor_ref.push_record(record, False)
+            self._engine_anchor_ref.push_record(record.finalize_record(), False)
 
         self.record_container.clear_records()
 
@@ -78,6 +78,3 @@ class OutputAnchor:
     def push_dataframe(self, df) -> None:
         self.record_container.set_from_df(df)
         self.push_records()
-
-    def __getattr__(self, item):
-        return getattr(self.record_container, item)
