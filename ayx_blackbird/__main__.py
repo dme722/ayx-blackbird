@@ -22,9 +22,12 @@ def create_ayx_plugin(name, tool_directory):
     if not os.path.isdir(tool_directory):
         setup_tool_dir(tool_directory)
 
+    if os.path.isdir(os.path.join(tool_directory, name)):
+        click.echo(f'Failed to create plugin: the plugin "{name}" already exists in {tool_directory}.')
+        return
+
     make_copy_of_example_tool(name, tool_directory)
     apply_name_change(name, tool_directory)
-    copy_requirements(os.path.join(tool_directory, name))
 
 
 def setup_tool_dir(tool_directory):
@@ -54,10 +57,6 @@ def update_name_in_main_py(tool_directory, name):
     with open(filepath, "w") as f:
         s = s.replace(example_tool_name, name)
         f.write(s)
-
-
-def copy_requirements(dest):
-    shutil.copyfile(os.path.join(get_install_dir(), "assets", "requirements.txt"), os.path.join(dest, "requirements.txt"))
 
 
 def update_config_name(filepath, name):
