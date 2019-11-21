@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AlteryxJavaScriptPlugin>
+	<EngineSettings EngineDll="Python" SDKVersion="10.1"></EngineSettings>
+	<Properties>
+		<MetaInfo>
+			<Name>Blackbird Tools</Name>
+			<RootToolName>Blackbird Tools</RootToolName>
+			<Description>Tool created using ayx-blackbird.</Description>
+			<CategoryName>Blackbird Examples</CategoryName>
+			<ToolVersion>0.0.0</ToolVersion>
+			<Author>Alteryx, Inc.</Author>
+			<Company>Alteryx, Inc.</Company>
+			<Copyright>2020</Copyright>
+			<Icon>icon.png</Icon>
+		</MetaInfo>
+	</Properties>
+</AlteryxJavaScriptPlugin>

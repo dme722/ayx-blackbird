@@ -15,4 +15,15 @@ setup(
     author_email="dme722@gmail.com",
     install_requires=requirements,
     packages=find_packages(),
+    entry_points="""
+        [console_scripts]
+        ayx_blackbird=ayx_blackbird.__main__:main
+    """,
+    package_data={
+        "ayx_blackbird": [
+            "assets/base_tool_config/*",
+            "assets/*",
+            "examples/BlackbirdExample/*"
+        ]
+    }
 )

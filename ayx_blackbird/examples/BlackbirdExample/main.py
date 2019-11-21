@@ -8,7 +8,7 @@ class AyxPlugin(BasePlugin):
         return "BlackbirdExample"
 
     @property
-    def record_batch_size(self) -> Optional[int]:
+    def record_batch_size(self):
         """Get the record batch size."""
         return 1000
 
