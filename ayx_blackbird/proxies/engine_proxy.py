@@ -3,8 +3,6 @@ import AlteryxPythonSDK as sdk
 
 import xmltodict
 
-from .workflow_config import WorkflowConfiguration
-
 
 class EngineProxy:
     """Proxy for the engine with a simplified interface."""
@@ -37,7 +35,7 @@ class EngineProxy:
         """Check if the engine is running in update only mode."""
         return self._engine.get_init_var(self._tool_id, "UpdateOnly") == "True"
 
-    def update_config_xml(self, workflow_config: WorkflowConfiguration):
+    def update_config_xml(self, workflow_config):
         """Update the config XML of this tool if it has changed."""
         if workflow_config.original_data != workflow_config.data:
             self._engine.output_message(

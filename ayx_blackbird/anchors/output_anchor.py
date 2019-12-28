@@ -1,7 +1,6 @@
 """Alteryx plugin output anchor definition."""
-from typing import Optional
 
-from .record_container import RecordContainer
+from ..records import RecordContainer
 
 
 class OutputAnchor:

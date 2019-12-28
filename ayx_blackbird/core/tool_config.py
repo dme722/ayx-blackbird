@@ -5,8 +5,7 @@ from typing import List, Mapping
 
 import xmltodict
 
-from .input_anchor import InputAnchor
-from .output_anchor import OutputAnchor
+from ..anchors import InputAnchor, OutputAnchor
 
 
 class ToolConfiguration:

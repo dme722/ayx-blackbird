@@ -1,8 +1,8 @@
 """AnchorUtilsMixin class definition."""
 from typing import List
 
-from .connection_interface import ConnectionStatus
-from .input_anchor import InputAnchor
+from ..anchors import InputAnchor
+from ..utilities.constants import ConnectionStatus
 
 
 class AnchorUtilsMixin:

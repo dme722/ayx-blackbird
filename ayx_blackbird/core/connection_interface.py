@@ -1,18 +1,8 @@
 """Connection class definitions."""
-from enum import Enum
-
 from .events import ConnectionEvents, PluginEvents
-from .observable_mixin import ObservableMixin
-from .record_container import RecordContainer
-
-
-class ConnectionStatus(Enum):
-    """Connection states."""
-
-    CREATED = 0
-    INITIALIZED = 1
-    RECEIVING_RECORDS = 2
-    CLOSED = 3
+from ..mixins import ObservableMixin
+from ..records import RecordContainer
+from ..utilities.constants import ConnectionStatus
 
 
 class ConnectionInterface(ObservableMixin):

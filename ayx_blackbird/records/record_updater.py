@@ -1,8 +1,8 @@
 """Record updater definition."""
 import AlteryxPythonSDK as sdk
 
-from .field_proxy import FieldProxy
 from .record_container import RecordContainer
+from ..proxies import FieldProxy
 
 
 class RecordUpdater:

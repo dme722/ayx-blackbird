@@ -1,9 +1,8 @@
 """Record container definition."""
 import AlteryxPythonSDK as sdk
 
-from .constants import NULL_VALUE_PLACEHOLDER
-from .field_proxy import FieldProxy
-from .record_proxy import RecordProxy
+from ..proxies import FieldProxy, RecordProxy
+from ..utilities.constants import NULL_VALUE_PLACEHOLDER
 
 
 class RecordContainer:

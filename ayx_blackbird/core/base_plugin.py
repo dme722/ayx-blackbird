@@ -1,19 +1,18 @@
 """Base plugin definition."""
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Optional
 
-from .anchor_utils_mixin import AnchorUtilsMixin
 from .connection_callback_strategy import (
     ConnectionCallbackStrategy,
     UpdateOnlyConnectionCallbackStrategy,
     WorkflowRunConnectionCallbackStrategy,
 )
 from .connection_interface import ConnectionInterface
-from .engine_proxy import EngineProxy
 from .events import ConnectionEvents, PluginEvents
-from .observable_mixin import ObservableMixin
 from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
+from ..mixins import AnchorUtilsMixin, ObservableMixin
+from ..proxies import EngineProxy
 
 
 class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):

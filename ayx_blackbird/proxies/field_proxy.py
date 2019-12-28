@@ -1,4 +1,4 @@
-from .constants import NULL_VALUE_PLACEHOLDER
+from ..utilities.constants import NULL_VALUE_PLACEHOLDER
 
 
 class FieldProxy:
