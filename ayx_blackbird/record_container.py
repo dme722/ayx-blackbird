@@ -1,11 +1,16 @@
+"""Record container definition."""
 import AlteryxPythonSDK as sdk
 
-NULL_VALUE_PLACEHOLDER = "BLACKBIRD_NULL_VALUE_PLACEHOLDER"
+from .constants import NULL_VALUE_PLACEHOLDER
+from .field_proxy import FieldProxy
+from .record_proxy import RecordProxy
 
 
 class RecordContainer:
+    __slots__ = ["__record_info", "_record_copier", "_records", "_fields"]
+
     def __init__(self, record_info):
-        self._record_info = record_info
+        self.__record_info = record_info
 
         self._record_copier = sdk.RecordCopier(record_info, record_info)
 
@@ -18,16 +23,25 @@ class RecordContainer:
 
         self._fields = {field.name: FieldProxy(field) for field in record_info}
 
-    def add_record(self, record) -> None:
-        record_creator = self._get_record_creator()
-        self._record_copier.copy(record_creator, record)
-        self._records.append(record_creator)
+    @property
+    def record_info(self):
+        return self.__record_info
 
-    def _get_record_creator(self):
-        return self._record_info.construct_record_creator()
+    def add_record(self, record, copy=True) -> None:
+        if copy:
+            record_creator = self.get_record_creator()
+            self._record_copier.copy(record_creator, record)
+            record_proxy = RecordProxy(record_creator=record_creator)
+        else:
+            record_proxy = RecordProxy(record_ref=record)
 
-    def add_record_creator(self, record_creator) -> None:
-        self._records.append(record_creator)
+        self.add_record_from_proxy(record_proxy)
+
+    def add_record_from_proxy(self, record_proxy):
+        self._records.append(record_proxy)
+
+    def get_record_creator(self):
+        return self.record_info.construct_record_creator()
 
     def set_records(self, other) -> None:
         self._records = other._records[:]
@@ -41,17 +55,24 @@ class RecordContainer:
                 "Dataframe must contain same columns as record container fields."
             )
 
+        self.fill_df_nulls_with_blackbird_nulls(df)
+
+        fields = [self._fields[column_name] for column_name in list(df)]
+
+        num_rows, _ = df.shape
+        df_data = df.values
+
         self.clear_records()
+        for row_index in range(num_rows):
+            row = df_data[row_index]
+            self._records.append(self._create_record_from_df_row(fields, row))
 
-        self._fill_nulls_with_blackbird_nulls(df)
+    def _create_record_from_df_row(self, fields, row):
+        record_creator = self.get_record_creator()
+        for col_index, field in enumerate(fields):
+            field.set(record_creator, row[col_index])
 
-        for _, row in df.iterrows():
-            record_creator = self._record_info.construct_record_creator()
-            for column_name in list(df):
-                field = self._fields[column_name]
-                field.set(record_creator, row[column_name])
-
-            self.add_record_creator(record_creator)
+        return RecordProxy(record_creator=record_creator)
 
     def parse_to_df(self, field_names=None):
         import pandas as pd
@@ -61,17 +82,19 @@ class RecordContainer:
         else:
             fields = [self._fields[field_name] for field_name in field_names]
 
-        field_values = {field.name: [] for field in fields}
-        for record_creator in self:
-            record = record_creator.finalize_record()
-
-            for field in fields:
-                field_values[field.name].append(field.get(record))
-
-        return pd.DataFrame(field_values)
+        return pd.DataFrame.from_records(
+            [
+                [
+                    field.get(record.value)
+                    for field in fields
+                ]
+                for record in self
+            ],
+            columns=[field.name for field in fields]
+        )
 
     @staticmethod
-    def _fill_nulls_with_blackbird_nulls(df):
+    def fill_df_nulls_with_blackbird_nulls(df):
         df.fillna(NULL_VALUE_PLACEHOLDER, inplace=True)
 
     def __iter__(self):
@@ -79,83 +102,3 @@ class RecordContainer:
 
     def __len__(self):
         return len(self._records)
-
-
-class FieldProxy:
-    field_getters_map = {
-        "blob": "get_as_blob",
-        "byte": "get_as_int32",
-        "int16": "get_as_int32",
-        "int32": "get_as_int32",
-        "int64": "get_as_int64",
-        "float": "get_as_double",
-        "double": "get_as_double",
-        "date": "get_as_string",
-        "time": "get_as_string",
-        "datetime": "get_as_string",
-        "bool": "get_as_bool",
-        "string": "get_as_string",
-        "v_string": "get_as_string",
-        "v_wstring": "get_as_string",
-        "wstring": "get_as_string",
-        "fixeddecimal": "get_as_double",
-        "spatialobj": "get_as_blob",
-    }
-
-    field_setters_map = {
-        "bool": "set_from_bool",
-        "blob": "set_from_blob",
-        "double": "set_from_double",
-        "float": "set_from_double",
-        "fixeddecimal": "set_from_double",
-        "byte": "set_from_int32",
-        "int16": "set_from_int32",
-        "int32": "set_from_int32",
-        "int64": "set_from_int64",
-        "string": "set_from_string",
-        "v_string": "set_from_string",
-        "v_wstring": "set_from_string",
-        "wstring": "set_from_string",
-        "date": "set_from_string",
-        "datetime": "set_from_string",
-        "time": "set_from_string",
-    }
-
-    field_cast_map = {
-        "bool": bool,
-        "blob": bytes,
-        "double": float,
-        "float": float,
-        "fixeddecimal": float,
-        "byte": int,
-        "int16": int,
-        "int32": int,
-        "int64": int,
-        "string": str,
-        "v_string": str,
-        "v_wstring": str,
-        "wstring": str,
-        "date": str,
-        "datetime": str,
-        "time": str,
-    }
-
-    def __init__(self, raw_field):
-        self._raw_field = raw_field
-
-        field_type = str(raw_field.type)
-        self._getter = getattr(raw_field, self.field_getters_map[field_type])
-        self._setter = getattr(raw_field, self.field_setters_map[field_type])
-        self._caster = self.field_cast_map[field_type]
-
-    def get(self, record):
-        return self._getter(record)
-
-    def set(self, record_creator, value):
-        if value is None or value == NULL_VALUE_PLACEHOLDER:
-            return self.set_null(record_creator)
-
-        return self._setter(record_creator, self._caster(value))
-
-    def __getattr__(self, item):
-        return getattr(self._raw_field, item)

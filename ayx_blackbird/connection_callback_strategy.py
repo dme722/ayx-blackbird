@@ -6,6 +6,7 @@ from .connection_interface import ConnectionInterface
 
 class ConnectionCallbackStrategy(ABC):
     """ABC for callback strategy."""
+    __slots__ = ["plugin"]
 
     def __init__(self, plugin):
         self.plugin = plugin

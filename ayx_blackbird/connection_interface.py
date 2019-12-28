@@ -17,6 +17,7 @@ class ConnectionStatus(Enum):
 
 class ConnectionInterface(ObservableMixin):
     """Connection interface definition."""
+    __slots__ = ["name", "record_container", "__record_info", "progress_percentage", "status", "plugin_initialization_success"]
 
     def __init__(self, plugin, connection_name):
         """Instantiate a connection interface."""

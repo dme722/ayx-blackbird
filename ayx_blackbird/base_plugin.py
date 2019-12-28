@@ -18,6 +18,7 @@ from .workflow_config import WorkflowConfiguration
 
 class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     """Base plugin to inherit from."""
+    __slots__ = ["tool_id", "engine", "tool_config", "input_anchors", "output_anchors", "workflow_config"]
 
     def __init__(self, tool_id: int, alteryx_engine, output_anchor_mgr):
         AnchorUtilsMixin.__init__(self)

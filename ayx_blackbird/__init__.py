@@ -3,6 +3,7 @@ from .connection_interface import ConnectionInterface, ConnectionStatus
 from .input_anchor import InputAnchor
 from .output_anchor import OutputAnchor
 from .record_container import RecordContainer
+from .record_updater import RecordUpdater
 from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 
@@ -13,6 +14,7 @@ __all__ = [
     "InputAnchor",
     "OutputAnchor",
     "RecordContainer",
+    "RecordUpdater",
     "ToolConfiguration",
     "WorkflowConfiguration",
 ]
