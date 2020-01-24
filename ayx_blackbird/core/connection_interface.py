@@ -1,22 +1,31 @@
 """Connection class definitions."""
 from .events import ConnectionEvents, PluginEvents
 from ..mixins import ObservableMixin
+from ..proxies import RecordProxy
 from ..utilities.constants import ConnectionStatus
 
 
 class ConnectionInterface(ObservableMixin):
     """Connection interface definition."""
-    __slots__ = ["name", "record_accumulator", "__record_info", "progress_percentage", "status", "plugin_initialization_success"]
 
-    def __init__(self, plugin, connection_name, record_accumulator):
+    __slots__ = [
+        "name",
+        "record_accumulator",
+        "__record_info",
+        "progress_percentage",
+        "status",
+        "plugin_initialization_success",
+    ]
+
+    def __init__(self, plugin, connection_name):
         """Instantiate a connection interface."""
         super().__init__()
         self.name = connection_name
-        self.record_accumulator = record_accumulator
         self.__record_info = None
         self.progress_percentage = 0.0
         self.status = ConnectionStatus.CREATED
         self.plugin_initialization_success = True
+        self.record_accumulator = None
 
         plugin.subscribe(
             PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
@@ -35,8 +44,6 @@ class ConnectionInterface(ObservableMixin):
         """Initialize the connection."""
         self.status = ConnectionStatus.INITIALIZED
         self.__record_info = record_info
-        self.record_accumulator.set_record_info_in(self.record_info)
-
         self.notify_topic(ConnectionEvents.CONNECTION_INITIALIZED, self)
 
         return self.plugin_initialization_success
@@ -44,7 +51,13 @@ class ConnectionInterface(ObservableMixin):
     def ii_push_record(self, record):
         """Receive a record."""
         self.status = ConnectionStatus.RECEIVING_RECORDS
-        self.record_accumulator.add_raw_record(record)
+
+        if not self.record_accumulator:
+            raise RuntimeError(
+                "No record accumulator was set for this connection interface."
+            )
+
+        self.record_accumulator.add_record(RecordProxy(record_ref=record))
         self.notify_topic(ConnectionEvents.RECORD_RECEIVED, self)
 
         return True

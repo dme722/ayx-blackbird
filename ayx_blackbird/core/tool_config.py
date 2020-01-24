@@ -10,6 +10,7 @@ from ..anchors import InputAnchor, OutputAnchor
 
 class ToolConfiguration:
     """Tool configuration definition."""
+
     __slots__ = ["tool_name", "_tool_config", "_output_anchor_mgr"]
 
     def __init__(self, tool_name: str, output_anchor_mgr):

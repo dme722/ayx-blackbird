@@ -7,6 +7,7 @@ import xmltodict
 
 class WorkflowConfiguration(UserDict):
     """Workflow configuration."""
+
     __slots__ = ["data", "original_data"]
 
     def __init__(self, config_str: str):

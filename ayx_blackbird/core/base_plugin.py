@@ -13,12 +13,20 @@ from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 from ..mixins import AnchorUtilsMixin, ObservableMixin
 from ..proxies import EngineProxy
-from ..records import RecordAccumulator
+from ..records import ParsedRecordContainer, RecordAccumulator
 
 
 class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     """Base plugin to inherit from."""
-    __slots__ = ["tool_id", "engine", "tool_config", "input_anchors", "output_anchors", "workflow_config"]
+
+    __slots__ = [
+        "tool_id",
+        "engine",
+        "tool_config",
+        "input_anchors",
+        "output_anchors",
+        "workflow_config",
+    ]
 
     def __init__(self, tool_id: int, alteryx_engine, output_anchor_mgr):
         AnchorUtilsMixin.__init__(self)
@@ -46,7 +54,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """Add incoming connection to the tool from the engine."""
         anchor = [a for a in self.input_anchors if a.name == anchor_name][0]
 
-        connection = ConnectionInterface(self, connection_name, self.get_accumulator(connection_name))
+        connection = ConnectionInterface(self, connection_name)
         anchor.connections.append(connection)
         self._subscribe_to_connection(connection)
         return connection
@@ -93,9 +101,15 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """pi_close is useless. Never use it."""
         pass
 
-    def get_record_accumulator(self, connection_name: str):
-        """Get the accumulator to use based on the connection name."""
-        return RecordAccumulator()
+    def set_record_accumulators(self):
+        """Set the accumulator class for each connection."""
+        for anchor in self.input_anchors:
+            for connection in anchor.connections:
+                connection.record_accumulator = RecordAccumulator(
+                    parsed_record_container=ParsedRecordContainer(
+                        connection.record_info
+                    )
+                )
 
     @property
     def callback_strategy(self) -> ConnectionCallbackStrategy:

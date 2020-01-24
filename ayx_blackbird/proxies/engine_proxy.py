@@ -6,6 +6,7 @@ import xmltodict
 
 class EngineProxy:
     """Proxy for the engine with a simplified interface."""
+
     __slots__ = ["_engine", "_tool_id"]
 
     def __init__(self, engine, tool_id):

@@ -5,6 +5,7 @@ from typing import Any, Callable
 
 class ObservableMixin:
     """Mixin to make an object observable."""
+
     __slots__ = ["_subscribers", "_subscribers_to_all"]
 
     def __init__(self):

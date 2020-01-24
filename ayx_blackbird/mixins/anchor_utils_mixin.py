@@ -8,11 +8,6 @@ from ..utilities.constants import ConnectionStatus
 class AnchorUtilsMixin:
     """Utility functions for interacting with input and output anchors."""
 
-    def push_all_records(self) -> None:
-        """Push any records queued for output."""
-        for anchor in self.output_anchors:
-            anchor.push_records()
-
     def push_all_metadata(self) -> None:
         """Push all metadata for anchors."""
         for anchor in self.output_anchors:
@@ -27,7 +22,7 @@ class AnchorUtilsMixin:
         """Remove all accumulated input records from input anchor record containers."""
         for anchor in self.input_anchors:
             for connection in anchor.connections:
-                connection.record_container.clear_records()
+                connection.record_accumulator.clear_records()
 
     def get_input_anchor(self, input_anchor_name):
         """Get an input anchor by name."""
