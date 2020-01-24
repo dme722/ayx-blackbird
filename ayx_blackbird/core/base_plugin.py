@@ -8,11 +8,12 @@ from .connection_callback_strategy import (
     WorkflowRunConnectionCallbackStrategy,
 )
 from .connection_interface import ConnectionInterface
-from .events import ConnectionEvents, PluginEvents
+from .events import ConnectionEvents
 from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 from ..mixins import AnchorUtilsMixin, ObservableMixin
 from ..proxies import EngineProxy
+from ..records import RecordAccumulator
 
 
 class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
@@ -45,7 +46,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """Add incoming connection to the tool from the engine."""
         anchor = [a for a in self.input_anchors if a.name == anchor_name][0]
 
-        connection = ConnectionInterface(self, connection_name)
+        connection = ConnectionInterface(self, connection_name, self.get_accumulator(connection_name))
         anchor.connections.append(connection)
         self._subscribe_to_connection(connection)
         return connection
@@ -92,9 +93,9 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """pi_close is useless. Never use it."""
         pass
 
-    def _run_plugin_initialization(self):
-        """Run initialize plugin code."""
-        self.notify_topic(PluginEvents.PLUGIN_INITIALIZED, self.initialize_plugin())
+    def get_record_accumulator(self, connection_name: str):
+        """Get the accumulator to use based on the connection name."""
+        return RecordAccumulator()
 
     @property
     def callback_strategy(self) -> ConnectionCallbackStrategy:
