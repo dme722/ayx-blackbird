@@ -21,6 +21,6 @@ class RecordCopierProxy:
 
     def copy(self, record):
         record_creator = self._output_record_info.construct_record_creator()
-        self._record_copier.copy(record_creator, record.value)
+        self._record_copier.copy(record_creator, record)
 
-        return RecordProxy(record_creator=record_creator)
+        return record_creator

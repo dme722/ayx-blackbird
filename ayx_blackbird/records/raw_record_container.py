@@ -16,12 +16,20 @@ class RawRecordContainer:
 
     def __init__(
         self,
-        input_record_info=None,
+        input_record_info,
         storage_record_info=None,
         field_map: Mapping[str, str] = None,
     ):
+        if (storage_record_info is None) ^ (field_map is None):
+            raise ValueError("storage_record_info and field_map must both be specified.")
+
         self._input_record_info = input_record_info
+
         self._storage_record_info = storage_record_info
+        if self._storage_record_info is None:
+            self._storage_record_info = self._input_record_info.clone()
+            field_map = {field.name: field.name for field in self._storage_record_info}
+
         self._field_map = field_map
         self._record_copier = RecordCopierProxy(
             self._input_record_info, self._storage_record_info, self._field_map

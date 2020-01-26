@@ -16,4 +16,4 @@ def generate_records_from_df(df, record_info):
         for col_idx in col_range:
             fields[col_idx].set(record_creator, row[col_idx+1])
 
-        yield record_creator.finalize_record()
+        yield record_creator

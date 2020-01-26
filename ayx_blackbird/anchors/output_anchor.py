@@ -57,9 +57,9 @@ class OutputAnchor:
         """Push records out."""
         raise RuntimeError("Must run push_metadata before push_records can be called.")
 
-    def _push_records(self, records) -> None:
-        for record in records:
-            self._engine_anchor_ref.push_record(record, False)
+    def _push_records(self, record_creators) -> None:
+        for record_creator in record_creators:
+            self._engine_anchor_ref.push_record(record_creator.finalize_record(), False)
 
     def close(self) -> None:
         """Close the output anchor."""

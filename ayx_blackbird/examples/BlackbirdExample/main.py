@@ -1,7 +1,7 @@
 import AlteryxPythonSDK as sdk
 
 from ayx_blackbird import BasePlugin
-from ayx_blackbird.records import generate_records_from_df
+from ayx_blackbird.records import generate_records_from_df, RawRecordContainer, RecordAccumulator
 
 
 class AyxPlugin(BasePlugin):
@@ -23,6 +23,16 @@ class AyxPlugin(BasePlugin):
         """Get the record batch size."""
         return None
 
+    def set_record_accumulators(self):
+        """Set the accumulator class for each connection."""
+        for anchor in self.input_anchors:
+            for connection in anchor.connections:
+                connection.record_accumulator = RecordAccumulator(
+                    raw_record_container=RawRecordContainer(
+                        connection.record_info
+                    )
+                )
+
     def initialize_plugin(self) -> bool:
         """Initialize plugin."""
         self.engine.info(self.engine.xmsg("Plugin initialized."))
@@ -39,12 +49,8 @@ class AyxPlugin(BasePlugin):
         """Process records in batches."""
         # import pandas as pd
 
-        input_df = self.input_anchor.connections[
-            0
-        ].record_accumulator.parsed_record_container.build_dataframe()
-        self.output_anchor.push_records(
-            generate_records_from_df(input_df, self.output_anchor.record_info)
-        )
+        input_records = self.input_anchor.connections[0].record_accumulator.raw_record_container.records
+        self.output_anchor.push_records(input_records)
 
         self.clear_all_input_records()
 
