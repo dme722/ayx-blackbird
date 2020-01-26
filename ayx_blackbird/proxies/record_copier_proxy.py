@@ -4,6 +4,8 @@ from .record_proxy import RecordProxy
 
 
 class RecordCopierProxy:
+    __slots__ = ["_input_record_info", "_output_record_info", "_record_copier"]
+
     def __init__(self, input_record_info, output_record_info, field_name_map):
         self._input_record_info = input_record_info
         self._output_record_info = output_record_info

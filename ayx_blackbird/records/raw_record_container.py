@@ -5,6 +5,15 @@ from ..utilities import fill_df_nulls_with_blackbird_nulls
 
 
 class RawRecordContainer:
+    __slots__ = [
+        "records",
+        "_input_record_info",
+        "_storage_record_info",
+        "_field_map",
+        "_record_copier",
+        "_input_fields",
+    ]
+
     def __init__(
         self,
         input_record_info=None,
@@ -42,4 +51,3 @@ class RawRecordContainer:
             for column_name in list(df):
                 field = self._storage_record_info.get_field_by_name(column_name)
                 field.set(record, row[column_name])
-

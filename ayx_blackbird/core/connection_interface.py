@@ -1,7 +1,6 @@
 """Connection class definitions."""
 from .events import ConnectionEvents, PluginEvents
 from ..mixins import ObservableMixin
-from ..proxies import RecordProxy
 from ..utilities.constants import ConnectionStatus
 
 
@@ -51,13 +50,7 @@ class ConnectionInterface(ObservableMixin):
     def ii_push_record(self, record):
         """Receive a record."""
         self.status = ConnectionStatus.RECEIVING_RECORDS
-
-        if not self.record_accumulator:
-            raise RuntimeError(
-                "No record accumulator was set for this connection interface."
-            )
-
-        self.record_accumulator.add_record(RecordProxy(record_ref=record))
+        self.record_accumulator.add_record(record)
         self.notify_topic(ConnectionEvents.RECORD_RECEIVED, self)
 
         return True

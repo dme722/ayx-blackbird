@@ -9,6 +9,7 @@ class AyxPlugin(BasePlugin):
         super().__init__(*args, **kwargs)
 
         # import cProfile
+        #
         # self.pr = cProfile.Profile()
         # self.pr.enable()
 
@@ -38,8 +39,12 @@ class AyxPlugin(BasePlugin):
         """Process records in batches."""
         # import pandas as pd
 
-        input_df = self.input_anchor.connections[0].record_accumulator.parsed_record_container.dataframe
-        self.output_anchor.push_records(generate_records_from_df(input_df, self.output_anchor.record_info))
+        input_df = self.input_anchor.connections[
+            0
+        ].record_accumulator.parsed_record_container.build_dataframe()
+        self.output_anchor.push_records(
+            generate_records_from_df(input_df, self.output_anchor.record_info)
+        )
 
         self.clear_all_input_records()
 
@@ -48,6 +53,7 @@ class AyxPlugin(BasePlugin):
         self.engine.info(self.engine.xmsg("Completed processing records."))
 
         # import pstats
+        #
         # self.pr.disable()
-        # ps = pstats.Stats(self.pr).sort_stats('cumulative')
-        # ps.dump_stats('C:\\Users\\dellison\\Desktop\\profile.pstats')
+        # ps = pstats.Stats(self.pr).sort_stats("cumulative")
+        # ps.dump_stats("C:\\Users\\dellison\\Desktop\\profile.pstats")

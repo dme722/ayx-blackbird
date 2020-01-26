@@ -7,6 +7,8 @@ from ..proxies import RecordProxy
 
 
 class RecordAccumulator:
+    __slots__ = ["raw_record_container", "parsed_record_container"]
+
     def __init__(
         self,
         raw_record_container: Optional[RawRecordContainer] = None,

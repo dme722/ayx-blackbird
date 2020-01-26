@@ -73,15 +73,13 @@ class FieldProxy:
         self._set_null = self._raw_field.set_null
 
     def get(self, record):
-        return self._getter(record.value)
+        return self._getter(record)
 
-    def set(self, record, value):
-        if record.creator is None:
-            raise ValueError("Record proxy must be built on creator.")
-        if value is None or value == NULL_VALUE_PLACEHOLDER:
-            return self.set_null(record.creator)
+    def set(self, record_creator, value):
+        if value is NULL_VALUE_PLACEHOLDER:
+            return self.set_null(record_creator)
 
-        return self._setter(record.creator, self._caster(value))
+        return self._setter(record_creator, self._caster(value))
 
     def set_null(self, record_creator):
         return self._set_null(record_creator)

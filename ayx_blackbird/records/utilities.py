@@ -1,19 +1,19 @@
-from ..proxies import FieldProxy, RecordProxy
+from ..proxies import FieldProxy
 from ..utilities import fill_df_nulls_with_blackbird_nulls
 
 
 def generate_records_from_df(df, record_info):
     fill_df_nulls_with_blackbird_nulls(df)
     columns = list(df)
-    values = df.values.tolist()
-    fields = {field.name: FieldProxy(field) for field in record_info}
+    field_map = {field.name: FieldProxy(field) for field in record_info}
+    fields = [field_map[column_name] for column_name in columns]
 
     record_creator = record_info.construct_record_creator()
 
-    for row in values:
+    col_range = range(len(fields))
+    for row in df.itertuples():
         record_creator.reset()
-        record_proxy = RecordProxy(record_creator=record_creator)
-        for col_idx, column in enumerate(columns):
-            fields[column].set(record_proxy, row[col_idx])
+        for col_idx in col_range:
+            fields[col_idx].set(record_creator, row[col_idx+1])
 
-        yield record_proxy
+        yield record_creator.finalize_record()
