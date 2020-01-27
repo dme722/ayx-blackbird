@@ -9,7 +9,7 @@ class ConnectionInterface(ObservableMixin):
 
     __slots__ = [
         "name",
-        "record_accumulator",
+        "record_containers",
         "__record_info",
         "progress_percentage",
         "status",
@@ -24,7 +24,7 @@ class ConnectionInterface(ObservableMixin):
         self.progress_percentage = 0.0
         self.status = ConnectionStatus.CREATED
         self.plugin_initialization_success = True
-        self.record_accumulator = None
+        self.record_containers = []
 
         plugin.subscribe(
             PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
@@ -35,8 +35,12 @@ class ConnectionInterface(ObservableMixin):
         """Getter for record info."""
         return self.__record_info
 
+    def add_record_container(self, container):
+        """Add a new record container."""
+        self.record_containers.append(container)
+
     def plugin_initialization_callback(self, value: bool):
-        """Callback for when the plugin initialization code runs."""
+        """Set success of plugin initialization."""
         self.plugin_initialization_success = value
 
     def ii_init(self, record_info):
@@ -50,7 +54,10 @@ class ConnectionInterface(ObservableMixin):
     def ii_push_record(self, record):
         """Receive a record."""
         self.status = ConnectionStatus.RECEIVING_RECORDS
-        self.record_accumulator.add_record(record)
+
+        for container in self.record_containers:
+            container.add_record(record)
+
         self.notify_topic(ConnectionEvents.RECORD_RECEIVED, self)
 
         return True

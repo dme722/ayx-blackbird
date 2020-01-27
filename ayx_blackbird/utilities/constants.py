@@ -1,3 +1,4 @@
+"""Constant definitions."""
 from enum import Enum
 
 NULL_VALUE_PLACEHOLDER = "BLACKBIRD_NULL_VALUE_PLACEHOLDER"

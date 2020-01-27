@@ -6,3 +6,5 @@ tools/
 build/
 dist/
 __pycache__/
+*.doit*
+.mypy_cache

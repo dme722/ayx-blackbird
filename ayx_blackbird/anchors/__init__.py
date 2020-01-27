@@ -1,3 +1,4 @@
+"""Anchor definitions."""
 from .input_anchor import InputAnchor
 from .output_anchor import OutputAnchor
 

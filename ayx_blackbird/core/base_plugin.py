@@ -13,7 +13,7 @@ from .tool_config import ToolConfiguration
 from .workflow_config import WorkflowConfiguration
 from ..mixins import AnchorUtilsMixin, ObservableMixin
 from ..proxies import EngineProxy
-from ..records import ParsedRecordContainer, RecordAccumulator
+from ..records import ParsedRecordContainer
 
 
 class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
@@ -29,6 +29,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     ]
 
     def __init__(self, tool_id: int, alteryx_engine, output_anchor_mgr):
+        """Construct a plugin."""
         AnchorUtilsMixin.__init__(self)
         ObservableMixin.__init__(self)
 
@@ -67,7 +68,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         )
         connection.subscribe(
             ConnectionEvents.RECORD_RECEIVED,
-            self.callback_strategy.single_record_received_callback,
+            self.callback_strategy.record_received_callback,
         )
         connection.subscribe(
             ConnectionEvents.CONNECTION_CLOSED,
@@ -101,19 +102,17 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """pi_close is useless. Never use it."""
         pass
 
-    def set_record_accumulators(self):
-        """Set the accumulator class for each connection."""
+    def set_record_containers(self):
+        """Set the containers for each connection."""
         for anchor in self.input_anchors:
             for connection in anchor.connections:
-                connection.record_accumulator = RecordAccumulator(
-                    parsed_record_container=ParsedRecordContainer(
-                        connection.record_info
-                    )
+                connection.add_record_container(
+                    ParsedRecordContainer(connection.record_info)
                 )
 
     @property
     def callback_strategy(self) -> ConnectionCallbackStrategy:
-        """Generate the callback strategy for the tool"""
+        """Generate the callback strategy for the tool."""
         return (
             UpdateOnlyConnectionCallbackStrategy(self)
             if self.engine.update_only_mode
@@ -145,5 +144,5 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
 
     @abstractmethod
     def on_complete(self) -> None:
-        """Finalizer for plugin."""
+        """Finalize the plugin."""
         pass

@@ -58,6 +58,7 @@ class OutputAnchor:
         raise RuntimeError("Must run push_metadata before push_records can be called.")
 
     def _push_records(self, record_creators) -> None:
+        """Push all records passed from iterable."""
         for record_creator in record_creators:
             self._engine_anchor_ref.push_record(record_creator.finalize_record(), False)
 

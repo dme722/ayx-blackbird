@@ -20,16 +20,16 @@ class ToolConfiguration:
         self._output_anchor_mgr = output_anchor_mgr
 
     def _get_tool_config(self) -> Mapping:
-        with open(self._get_tool_config_filepath()) as fd:
+        with open(str(self._get_tool_config_filepath())) as fd:
             tool_config = xmltodict.parse(fd.read())
 
         return tool_config
 
     def _get_tool_config_filepath(self) -> Path:
-        return Path(os.path.join(self._get_tool_path(), f"{self.tool_name}Config.xml"))
+        return Path(os.path.join(str(self._get_tool_path()), f"{self.tool_name}Config.xml"))
 
     def _get_tool_path(self) -> Path:
-        return Path(os.path.join(self._get_tools_location(), self.tool_name))
+        return Path(os.path.join(str(self._get_tools_location()), self.tool_name))
 
     @staticmethod
     def _get_tools_location() -> Path:
@@ -60,11 +60,11 @@ class ToolConfiguration:
         if not isinstance(output_anchor_configs, list):
             output_anchor_configs = [output_anchor_configs]
 
-            return [
-                OutputAnchor(
-                    config["@Name"],
-                    config["@Optional"].lower() == "True",
-                    self._output_anchor_mgr,
-                )
-                for config in output_anchor_configs
-            ]
+        return [
+            OutputAnchor(
+                config["@Name"],
+                config["@Optional"].lower() == "True",
+                self._output_anchor_mgr,
+            )
+            for config in output_anchor_configs
+        ]

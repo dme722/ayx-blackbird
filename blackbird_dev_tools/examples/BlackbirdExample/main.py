@@ -1,22 +1,15 @@
-import AlteryxPythonSDK as sdk
-
+"""Example tool."""
 from ayx_blackbird import BasePlugin
-from ayx_blackbird.records import generate_records_from_df, RawRecordContainer, RecordAccumulator
+from ayx_blackbird.records import RawRecordContainer, RecordAccumulator
 
 
 class AyxPlugin(BasePlugin):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # import cProfile
-        #
-        # self.pr = cProfile.Profile()
-        # self.pr.enable()
+    """Concrete implementation of an AyxPlugin."""
 
     @property
     def tool_name(self) -> str:
         """Get the tool name."""
-        return "TestTool"
+        return "BlackbirdExample"
 
     @property
     def record_batch_size(self):
@@ -28,9 +21,7 @@ class AyxPlugin(BasePlugin):
         for anchor in self.input_anchors:
             for connection in anchor.connections:
                 connection.record_accumulator = RecordAccumulator(
-                    raw_record_container=RawRecordContainer(
-                        connection.record_info
-                    )
+                    raw_record_container=RawRecordContainer(connection.record_info)
                 )
 
     def initialize_plugin(self) -> bool:
@@ -47,19 +38,13 @@ class AyxPlugin(BasePlugin):
 
     def process_records(self) -> None:
         """Process records in batches."""
-        # import pandas as pd
-
-        input_records = self.input_anchor.connections[0].record_accumulator.raw_record_container.records
+        input_records = self.input_anchor.connections[
+            0
+        ].record_accumulator.raw_record_container.records
         self.output_anchor.push_records(input_records)
 
         self.clear_all_input_records()
 
     def on_complete(self) -> None:
-        """Finalizer for plugin."""
+        """Finalize the plugin."""
         self.engine.info(self.engine.xmsg("Completed processing records."))
-
-        # import pstats
-        #
-        # self.pr.disable()
-        # ps = pstats.Stats(self.pr).sort_stats("cumulative")
-        # ps.dump_stats("C:\\Users\\dellison\\Desktop\\profile.pstats")

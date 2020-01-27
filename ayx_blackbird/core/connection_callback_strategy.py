@@ -10,10 +10,11 @@ class ConnectionCallbackStrategy(ABC):
     __slots__ = ["plugin"]
 
     def __init__(self, plugin):
+        """Construct a callback strategy."""
         self.plugin = plugin
 
     def update_progress_callback(self, _: ConnectionInterface) -> None:
-        """Callback for updates to input progress percentage."""
+        """Update input progress percentage."""
         import numpy as np
 
         percent = np.mean(
@@ -31,17 +32,17 @@ class ConnectionCallbackStrategy(ABC):
 
     @abstractmethod
     def connection_initialized_callback(self, connection: ConnectionInterface) -> None:
-        """Callback for connection initialization."""
+        """Run callback for connection initialization."""
         pass
 
     @abstractmethod
-    def single_record_received_callback(self, connection: ConnectionInterface) -> None:
-        """Callback for when any record is received."""
+    def record_received_callback(self, connection: ConnectionInterface) -> None:
+        """Run callback for when a record is received."""
         pass
 
     @abstractmethod
     def connection_closed_callback(self, _: ConnectionInterface) -> None:
-        """Callback for connection closing."""
+        """Run callback for connection closing."""
         pass
 
 
@@ -49,18 +50,19 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for workflow runs."""
 
     def __init__(self, plugin):
+        """Construct a callback."""
         super().__init__(plugin)
         self._num_records_since_processed = 0
 
     def connection_initialized_callback(self, _: ConnectionInterface) -> bool:
-        """Callback for connection initialization."""
+        """Run callback for connection initialization."""
         if self.plugin.all_connections_initialized:
-            self.plugin.set_record_accumulators()
+            self.plugin.set_record_containers()
             return self.plugin.initialize_plugin()
 
         return True
 
-    def single_record_received_callback(self, connection: ConnectionInterface) -> None:
+    def record_received_callback(self, connection: ConnectionInterface) -> None:
         """Process single records by batch size."""
         self._num_records_since_processed += 1
 
@@ -83,13 +85,13 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for update only runs."""
 
     def connection_initialized_callback(self, _: ConnectionInterface) -> bool:
-        """Callback for connection initialization."""
+        """Run callback for connection initialization."""
         if self.plugin.all_connections_initialized:
             return self.plugin.initialize_plugin()
 
         return True
 
-    def single_record_received_callback(self, connection: ConnectionInterface) -> None:
+    def record_received_callback(self, connection: ConnectionInterface) -> None:
         """Raise error since this should never be called in update only mode."""
         raise RuntimeError("Record received in update only mode.")
 

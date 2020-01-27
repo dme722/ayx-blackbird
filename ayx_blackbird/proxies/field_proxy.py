@@ -1,7 +1,10 @@
+"""FieldProxy class definition."""
 from ..utilities.constants import NULL_VALUE_PLACEHOLDER
 
 
 class FieldProxy:
+    """Proxy for Field class from the raw Python SDK."""
+
     field_getters_map = {
         "blob": "get_as_blob",
         "byte": "get_as_int32",
@@ -63,6 +66,7 @@ class FieldProxy:
     __slots__ = ["name", "_raw_field", "_getter", "_setter", "_caster", "_set_null"]
 
     def __init__(self, raw_field):
+        """Construct a field proxy object."""
         self.name = raw_field.name
         self._raw_field = raw_field
 
@@ -73,13 +77,16 @@ class FieldProxy:
         self._set_null = self._raw_field.set_null
 
     def get(self, record):
+        """Get the value for this field from a record."""
         return self._getter(record)
 
     def set(self, record_creator, value):
+        """Set the field for a given record to a value."""
         if value is NULL_VALUE_PLACEHOLDER:
             return self.set_null(record_creator)
 
         return self._setter(record_creator, self._caster(value))
 
     def set_null(self, record_creator):
+        """Set the field for a given record to null."""
         return self._set_null(record_creator)

@@ -28,7 +28,8 @@ def create_ayx_plugin(name, tool_directory):
 
     if os.path.isdir(os.path.join(tool_directory, name)):
         click.echo(
-            f'Failed to create plugin: the plugin "{name}" already exists in {tool_directory}.'
+            f'Failed to create plugin: the plugin "{name}"'
+            "already exists in {tool_directory}."
         )
         return
 

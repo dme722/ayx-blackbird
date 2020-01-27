@@ -1,10 +1,13 @@
+"""RawRecordContainer class definition."""
 from typing import Mapping
 
-from ..proxies import FieldProxy, RecordCopierProxy, RecordProxy
+from ..proxies import FieldProxy, RecordCopierProxy
 from ..utilities import fill_df_nulls_with_blackbird_nulls
 
 
 class RawRecordContainer:
+    """Container for copying and holding raw records."""
+
     __slots__ = [
         "records",
         "_input_record_info",
@@ -20,8 +23,11 @@ class RawRecordContainer:
         storage_record_info=None,
         field_map: Mapping[str, str] = None,
     ):
+        """Construct a container."""
         if (storage_record_info is None) ^ (field_map is None):
-            raise ValueError("storage_record_info and field_map must both be specified.")
+            raise ValueError(
+                "storage_record_info and field_map must both be specified."
+            )
 
         self._input_record_info = input_record_info
 
@@ -40,12 +46,15 @@ class RawRecordContainer:
         self.records = []
 
     def add_record(self, record: RecordProxy) -> None:
+        """Make a copy of the record and add it to the container."""
         self.records.append(self._record_copier.copy(record))
 
     def clear_records(self) -> None:
+        """Clear all accumulated records."""
         self.records = []
 
     def update_with_dataframe(self, df):
+        """Update stored records with values from a dataframe."""
         num_rows, _ = df.shape
 
         if num_rows != len(self.records):

@@ -1,5 +1,5 @@
 """Alteryx Engine Proxy definition."""
-import AlteryxPythonSDK as sdk
+import AlteryxPythonSDK as Sdk
 
 import xmltodict
 
@@ -19,17 +19,17 @@ class EngineProxy:
 
     def error(self, message: str) -> None:
         """Display an error message in the results panel."""
-        self._engine.output_message(self._tool_id, sdk.EngineMessageType.error, message)
+        self._engine.output_message(self._tool_id, Sdk.EngineMessageType.error, message)
 
     def warning(self, message: str) -> None:
         """Display a warning message in the results panel."""
         self._engine.output_message(
-            self._tool_id, sdk.EngineMessageType.warning, message
+            self._tool_id, Sdk.EngineMessageType.warning, message
         )
 
     def info(self, message: str) -> None:
         """Display an info message in the results panel."""
-        self._engine.output_message(self._tool_id, sdk.EngineMessageType.info, message)
+        self._engine.output_message(self._tool_id, Sdk.EngineMessageType.info, message)
 
     @property
     def update_only_mode(self) -> bool:
@@ -41,7 +41,7 @@ class EngineProxy:
         if workflow_config.original_data != workflow_config.data:
             self._engine.output_message(
                 self._tool_id,
-                sdk.Status.update_output_config_xml,
+                Sdk.Status.update_output_config_xml,
                 xmltodict.unparse({"Configuration": workflow_config.data}),
             )
 

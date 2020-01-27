@@ -1,8 +1,9 @@
 """Alteryx plugin input anchor definition."""
+from typing import List
 
 
 class InputAnchor:
-    """Input anchor to the tool"""
+    """Input anchor to the tool."""
 
     __slots__ = ["name", "optional", "connections"]
 
@@ -10,4 +11,4 @@ class InputAnchor:
         """Instantiate an input anchor."""
         self.name = name
         self.optional = optional
-        self.connections = []
+        self.connections: List[ConnectionInterface] = []
