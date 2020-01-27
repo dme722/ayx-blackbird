@@ -1,5 +1,12 @@
 DOIT_CONFIG = {
-    "default_tasks": ["python_dependencies", "flake8", "black", "pydocstyle", "pytest"],
+    "default_tasks": [
+        "python_dependencies",
+        "flake8",
+        "black",
+        "pydocstyle",
+        "mypy",
+        "pytest",
+    ],
     "cleanforget": True,
     "verbosity": 0,
 }
@@ -13,7 +20,7 @@ def task_python_dependencies():
         "actions": [f"pip install -r requirements-dev.txt --log {log_file}"],
         "file_dep": ["requirements.txt", "requirements-dev.txt"],
         "targets": [log_file],
-        "clean": True
+        "clean": True,
     }
 
 
@@ -23,7 +30,7 @@ def task_black():
             "name": directory,
             "actions": [f"black --check {directory}"],
             "file_dep": list_files(directory),
-            "task_dep": ["python_dependencies"]
+            "task_dep": ["python_dependencies"],
         }
 
 
@@ -45,15 +52,19 @@ def task_pydocstyle():
         }
 
 
+def task_mypy():
+    return {
+        "actions": [f"mypy ayx_blackbird"],
+        "file_dep": list_files("ayx_blackbird") + ["mypy.ini"],
+    }
+
+
 def task_pytest():
     file_deps = []
     for path in python_directories:
         file_deps += list_files(path)
 
-    return {
-        "actions": [f"pytest tests"],
-        "file_dep": file_deps,
-    }
+    return {"actions": [f"pytest tests"], "file_dep": file_deps}
 
 
 def list_files(directory):

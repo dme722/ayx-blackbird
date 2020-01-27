@@ -1,4 +1,8 @@
 """FieldProxy class definition."""
+from typing import Any
+
+from AlteryxPythonSDK import Field, RecordCreator, RecordRef
+
 from ..utilities.constants import NULL_VALUE_PLACEHOLDER
 
 
@@ -65,7 +69,7 @@ class FieldProxy:
 
     __slots__ = ["name", "_raw_field", "_getter", "_setter", "_caster", "_set_null"]
 
-    def __init__(self, raw_field):
+    def __init__(self, raw_field: Field):
         """Construct a field proxy object."""
         self.name = raw_field.name
         self._raw_field = raw_field
@@ -76,17 +80,17 @@ class FieldProxy:
         self._caster = self.field_cast_map[field_type]
         self._set_null = self._raw_field.set_null
 
-    def get(self, record):
+    def get(self, record: RecordRef) -> Any:
         """Get the value for this field from a record."""
         return self._getter(record)
 
-    def set(self, record_creator, value):
+    def set(self, record_creator: RecordCreator, value) -> None:
         """Set the field for a given record to a value."""
         if value is NULL_VALUE_PLACEHOLDER:
             return self.set_null(record_creator)
 
-        return self._setter(record_creator, self._caster(value))
+        self._setter(record_creator, self._caster(value))
 
-    def set_null(self, record_creator):
+    def set_null(self, record_creator: RecordCreator) -> None:
         """Set the field for a given record to null."""
-        return self._set_null(record_creator)
+        self._set_null(record_creator)

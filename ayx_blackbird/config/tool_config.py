@@ -1,7 +1,7 @@
 """Alteryx tool configuration definition."""
 import os
 from pathlib import Path
-from typing import List, Mapping
+from typing import Any, Dict, List
 
 import xmltodict
 
@@ -19,9 +19,9 @@ class ToolConfiguration:
         self._tool_config = self._get_tool_config()
         self._output_anchor_mgr = output_anchor_mgr
 
-    def _get_tool_config(self) -> Mapping:
+    def _get_tool_config(self) -> Dict[str, Any]:
         with open(str(self._get_tool_config_filepath())) as fd:
-            tool_config = xmltodict.parse(fd.read())
+            tool_config = dict(xmltodict.parse(fd.read()))
 
         return tool_config
 

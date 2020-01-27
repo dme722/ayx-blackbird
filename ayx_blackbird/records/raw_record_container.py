@@ -1,5 +1,5 @@
 """RawRecordContainer class definition."""
-from typing import Mapping
+from typing import Dict, List, Optional
 
 from ..proxies import FieldProxy, RecordCopierProxy
 from ..utilities import fill_df_nulls_with_blackbird_nulls
@@ -21,7 +21,7 @@ class RawRecordContainer:
         self,
         input_record_info,
         storage_record_info=None,
-        field_map: Mapping[str, str] = None,
+        field_map: Optional[Dict[str, str]] = None,
     ):
         """Construct a container."""
         if (storage_record_info is None) ^ (field_map is None):
@@ -34,16 +34,23 @@ class RawRecordContainer:
         self._storage_record_info = storage_record_info
         if self._storage_record_info is None:
             self._storage_record_info = self._input_record_info.clone()
-            field_map = {field.name: field.name for field in self._storage_record_info}
+        else:
+            self._storage_record_info = storage_record_info
 
-        self._field_map = field_map
+        if field_map is None:
+            self._field_map = {
+                str(field.name): str(field.name) for field in self._storage_record_info
+            }
+        else:
+            self._field_map = field_map
+
         self._record_copier = RecordCopierProxy(
             self._input_record_info, self._storage_record_info, self._field_map
         )
         self._input_fields = {
             field.name: FieldProxy(field) for field in input_record_info
         }
-        self.records = []
+        self.records: List[RecordCopierProxy] = []
 
     def add_record(self, record) -> None:
         """Make a copy of the record and add it to the container."""

@@ -1,4 +1,7 @@
 """Alteryx plugin output anchor definition."""
+from typing import Callable, Iterable, Optional
+
+import AlteryxPythonSDK as Sdk
 
 
 class OutputAnchor:
@@ -15,24 +18,30 @@ class OutputAnchor:
     ]
 
     def __init__(
-        self, name: str, optional: bool, engine_output_anchor_mgr, record_info=None
+        self,
+        name: str,
+        optional: bool,
+        output_anchor_mgr: Sdk.OutputAnchorManager,
+        record_info=Optional[Sdk.RecordInfo],
     ):
         """Initialize an output anchor."""
-        self._engine_anchor_ref = engine_output_anchor_mgr.get_output_anchor(name)
-        self._metadata_pushed = False
+        self._engine_anchor_ref: Sdk.OutputAnchor = output_anchor_mgr.get_output_anchor(
+            name
+        )
+        self._metadata_pushed: bool = False
         self.__record_info = record_info
         self.name = name
         self.optional = optional
-        self.num_connections = 0
-        self.push_records = self._raise_metadata_error
+        self.num_connections: int = 0
+        self.push_records: Callable = self._raise_metadata_error
 
     @property
-    def record_info(self):
+    def record_info(self) -> Sdk.RecordInfo:
         """Getter for record info."""
         return self.__record_info
 
     @record_info.setter
-    def record_info(self, value):
+    def record_info(self, value: Sdk.RecordInfo) -> None:
         """Setter for record info."""
         if self._metadata_pushed:
             raise RuntimeError("Can't reassign record_info after it has been pushed.")
@@ -53,11 +62,11 @@ class OutputAnchor:
             self._metadata_pushed = True
             self.push_records = self._push_records
 
-    def _raise_metadata_error(self, *_) -> None:
+    def _raise_metadata_error(self, _) -> None:
         """Push records out."""
         raise RuntimeError("Must run push_metadata before push_records can be called.")
 
-    def _push_records(self, record_creators) -> None:
+    def _push_records(self, record_creators: Iterable[Sdk.RecordCreator]) -> None:
         """Push all records passed from iterable."""
         for record_creator in record_creators:
             self._engine_anchor_ref.push_record(record_creator.finalize_record(), False)

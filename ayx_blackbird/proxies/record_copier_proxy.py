@@ -1,5 +1,7 @@
 """RecordCopierProxy class definition."""
-import AlteryxPythonSDK as Sdk
+from typing import Mapping
+
+from AlteryxPythonSDK import RecordCopier, RecordCreator, RecordInfo, RecordRef
 
 
 class RecordCopierProxy:
@@ -7,11 +9,16 @@ class RecordCopierProxy:
 
     __slots__ = ["_input_record_info", "_output_record_info", "_record_copier"]
 
-    def __init__(self, input_record_info, output_record_info, field_name_map):
+    def __init__(
+        self,
+        input_record_info: RecordInfo,
+        output_record_info: RecordInfo,
+        field_name_map: Mapping[str, str],
+    ):
         """Construct a record copier proxy object."""
         self._input_record_info = input_record_info
         self._output_record_info = output_record_info
-        self._record_copier = Sdk.RecordCopier(input_record_info, output_record_info)
+        self._record_copier = RecordCopier(input_record_info, output_record_info)
 
         for input_name, output_name in field_name_map.items():
             input_idx = input_record_info.get_field_num(input_name)
@@ -21,7 +28,7 @@ class RecordCopierProxy:
 
         self._record_copier.done_adding()
 
-    def copy(self, record):
+    def copy(self, record: RecordRef) -> RecordCreator:
         """Copy a record into a new record creator."""
         record_creator = self._output_record_info.construct_record_creator()
         self._record_copier.copy(record_creator, record)

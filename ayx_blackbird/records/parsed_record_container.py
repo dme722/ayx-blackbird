@@ -17,15 +17,16 @@ class ParsedRecordContainer:
             field.name: FieldProxy(field) for field in input_record_info
         }
 
-        self._field_names_to_parse = field_names_to_parse
         if field_names_to_parse is None:
             self._field_names_to_parse = [field.name for field in input_record_info]
+        else:
+            self._field_names_to_parse = field_names_to_parse
 
         self._parse_fields = [
             self._input_fields[field_name] for field_name in self._field_names_to_parse
         ]
 
-        self.records = []
+        self.records: List[List[Any]] = []
 
     def add_record(self, record) -> None:
         """Add a new record to the container and parse it."""

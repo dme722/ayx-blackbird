@@ -54,13 +54,11 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
         super().__init__(plugin)
         self._num_records_since_processed = 0
 
-    def connection_initialized_callback(self, _: ConnectionInterface) -> bool:
+    def connection_initialized_callback(self, _: ConnectionInterface) -> None:
         """Run callback for connection initialization."""
         if self.plugin.all_connections_initialized:
             self.plugin.set_record_containers()
-            return self.plugin.initialize_plugin()
-
-        return True
+            self.plugin.initialize_plugin()
 
     def record_received_callback(self, connection: ConnectionInterface) -> None:
         """Process single records by batch size."""
@@ -84,12 +82,10 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
 class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for update only runs."""
 
-    def connection_initialized_callback(self, _: ConnectionInterface) -> bool:
+    def connection_initialized_callback(self, _: ConnectionInterface) -> None:
         """Run callback for connection initialization."""
         if self.plugin.all_connections_initialized:
-            return self.plugin.initialize_plugin()
-
-        return True
+            self.plugin.initialize_plugin()
 
     def record_received_callback(self, connection: ConnectionInterface) -> None:
         """Raise error since this should never be called in update only mode."""

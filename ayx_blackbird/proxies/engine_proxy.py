@@ -3,13 +3,15 @@ import AlteryxPythonSDK as Sdk
 
 import xmltodict
 
+from ..config import WorkflowConfiguration
+
 
 class EngineProxy:
     """Proxy for the engine with a simplified interface."""
 
     __slots__ = ["_engine", "_tool_id"]
 
-    def __init__(self, engine, tool_id):
+    def __init__(self, engine: Sdk.AlteryxEngine, tool_id: int):
         self._engine = engine
         self._tool_id = tool_id
 
@@ -34,9 +36,9 @@ class EngineProxy:
     @property
     def update_only_mode(self) -> bool:
         """Check if the engine is running in update only mode."""
-        return self._engine.get_init_var(self._tool_id, "UpdateOnly") == "True"
+        return bool(self._engine.get_init_var(self._tool_id, "UpdateOnly") == "True")
 
-    def update_config_xml(self, workflow_config):
+    def update_config_xml(self, workflow_config: WorkflowConfiguration) -> None:
         """Update the config XML of this tool if it has changed."""
         if workflow_config.original_data != workflow_config.data:
             self._engine.output_message(
@@ -44,7 +46,3 @@ class EngineProxy:
                 Sdk.Status.update_output_config_xml,
                 xmltodict.unparse({"Configuration": workflow_config.data}),
             )
-
-    def __getattr__(self, name):
-        """Defer undefined methods to normal engine."""
-        return getattr(self._engine, name)
