@@ -7,6 +7,7 @@ from ..utilities.constants import ConnectionStatus
 
 class AnchorUtilsMixin:
     """Utility functions for interacting with input and output anchors."""
+
     def __init__(self):
         self.input_anchors = []
         self.output_anchors = []

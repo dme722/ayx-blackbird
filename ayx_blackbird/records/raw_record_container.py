@@ -45,7 +45,7 @@ class RawRecordContainer:
         }
         self.records = []
 
-    def add_record(self, record: RecordProxy) -> None:
+    def add_record(self, record) -> None:
         """Make a copy of the record and add it to the container."""
         self.records.append(self._record_copier.copy(record))
 

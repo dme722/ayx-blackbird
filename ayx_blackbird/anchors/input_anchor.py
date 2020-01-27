@@ -9,6 +9,8 @@ class InputAnchor:
 
     def __init__(self, name: str, optional: bool):
         """Instantiate an input anchor."""
+        from ..core.connection_interface import ConnectionInterface
+
         self.name = name
         self.optional = optional
         self.connections: List[ConnectionInterface] = []

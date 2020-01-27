@@ -26,7 +26,9 @@ class ToolConfiguration:
         return tool_config
 
     def _get_tool_config_filepath(self) -> Path:
-        return Path(os.path.join(str(self._get_tool_path()), f"{self.tool_name}Config.xml"))
+        return Path(
+            os.path.join(str(self._get_tool_path()), f"{self.tool_name}Config.xml")
+        )
 
     def _get_tool_path(self) -> Path:
         return Path(os.path.join(str(self._get_tools_location()), self.tool_name))

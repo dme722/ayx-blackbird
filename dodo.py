@@ -1,9 +1,20 @@
 DOIT_CONFIG = {
-    "default_tasks": ["flake8", "black", "pydocstyle", "pytest"],
+    "default_tasks": ["python_dependencies", "flake8", "black", "pydocstyle", "pytest"],
     "cleanforget": True,
+    "verbosity": 0,
 }
 
 python_directories = ["ayx_blackbird", "tests"]
+
+
+def task_python_dependencies():
+    log_file = ".doit.pip.log"
+    return {
+        "actions": [f"pip install -r requirements-dev.txt --log {log_file}"],
+        "file_dep": ["requirements.txt", "requirements-dev.txt"],
+        "targets": [log_file],
+        "clean": True
+    }
 
 
 def task_black():
@@ -12,6 +23,7 @@ def task_black():
             "name": directory,
             "actions": [f"black --check {directory}"],
             "file_dep": list_files(directory),
+            "task_dep": ["python_dependencies"]
         }
 
 
