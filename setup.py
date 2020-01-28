@@ -23,7 +23,7 @@ setup(
         "ayx_blackbird": [
             "assets/base_tool_config/*",
             "assets/*",
-            "examples/BlackbirdExample/*"
+            "examples/BlackbirdPassthrough/*"
         ]
     }
 )

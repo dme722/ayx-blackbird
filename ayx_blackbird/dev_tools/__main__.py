@@ -5,7 +5,7 @@ import click
 
 import xmltodict
 
-example_tool_name = "BlackbirdExample"
+example_tool_name = "BlackbirdPassthrough"
 
 
 @click.group()
