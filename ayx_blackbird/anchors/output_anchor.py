@@ -23,7 +23,7 @@ class OutputAnchor:
         optional: bool,
         output_anchor_mgr: Sdk.OutputAnchorManager,
         record_info=Optional[Sdk.RecordInfo],
-    ):
+    ) -> None:
         """Initialize an output anchor."""
         self._engine_anchor_ref: Sdk.OutputAnchor = output_anchor_mgr.get_output_anchor(
             name
@@ -62,7 +62,7 @@ class OutputAnchor:
             self._metadata_pushed = True
             self.push_records = self._push_records
 
-    def _raise_metadata_error(self, _) -> None:
+    def _raise_metadata_error(self, _: Iterable[Sdk.RecordCreator]) -> None:
         """Push records out."""
         raise RuntimeError("Must run push_metadata before push_records can be called.")
 

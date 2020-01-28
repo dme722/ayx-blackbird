@@ -1,6 +1,6 @@
 """Observable mixin definition."""
 from collections import defaultdict
-from typing import Any, Callable
+from typing import Any, Callable, DefaultDict, List
 
 
 class ObservableMixin:
@@ -8,10 +8,10 @@ class ObservableMixin:
 
     __slots__ = ["_subscribers", "_subscribers_to_all"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize observable properties."""
-        self._subscribers = defaultdict(list)
-        self._subscribers_to_all = []
+        self._subscribers: DefaultDict = defaultdict(list)
+        self._subscribers_to_all: List[Callable] = []
 
     def subscribe(self, event: Any, callback: Callable) -> None:
         """Subscribe to a topic."""

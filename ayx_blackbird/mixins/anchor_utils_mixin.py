@@ -1,16 +1,16 @@
 """AnchorUtilsMixin class definition."""
 from typing import List
 
-from ..anchors import InputAnchor
+from ..anchors import InputAnchor, OutputAnchor
 from ..utilities.constants import ConnectionStatus
 
 
 class AnchorUtilsMixin:
     """Utility functions for interacting with input and output anchors."""
 
-    def __init__(self):
-        self.input_anchors = []
-        self.output_anchors = []
+    def __init__(self) -> None:
+        self.input_anchors: List[InputAnchor] = []
+        self.output_anchors: List[OutputAnchor] = []
 
     def push_all_metadata(self) -> None:
         """Push all metadata for anchors."""
@@ -29,13 +29,13 @@ class AnchorUtilsMixin:
                 for container in connection.record_containers:
                     container.clear_records()
 
-    def get_input_anchor(self, input_anchor_name):
+    def get_input_anchor(self, input_anchor_name: str) -> InputAnchor:
         """Get an input anchor by name."""
         return [
             anchor for anchor in self.input_anchors if anchor.name == input_anchor_name
         ][0]
 
-    def get_output_anchor(self, output_anchor_name):
+    def get_output_anchor(self, output_anchor_name: str) -> OutputAnchor:
         """Get an output anchor by name."""
         return [
             anchor
