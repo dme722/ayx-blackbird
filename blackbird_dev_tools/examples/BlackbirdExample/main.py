@@ -1,6 +1,6 @@
 """Example tool."""
 from ayx_blackbird import BasePlugin
-from ayx_blackbird.records import RawRecordContainer, RecordAccumulator
+from ayx_blackbird.records import generate_records_from_df
 
 
 class AyxPlugin(BasePlugin):
@@ -9,20 +9,12 @@ class AyxPlugin(BasePlugin):
     @property
     def tool_name(self) -> str:
         """Get the tool name."""
-        return "BlackbirdExample"
+        return "TestTool"
 
     @property
     def record_batch_size(self):
         """Get the record batch size."""
-        return None
-
-    def set_record_accumulators(self):
-        """Set the accumulator class for each connection."""
-        for anchor in self.input_anchors:
-            for connection in anchor.connections:
-                connection.record_accumulator = RecordAccumulator(
-                    raw_record_container=RawRecordContainer(connection.record_info)
-                )
+        return 10000
 
     def initialize_plugin(self) -> bool:
         """Initialize plugin."""
@@ -38,10 +30,12 @@ class AyxPlugin(BasePlugin):
 
     def process_records(self) -> None:
         """Process records in batches."""
-        input_records = self.input_anchor.connections[
-            0
-        ].record_accumulator.raw_record_container.records
-        self.output_anchor.push_records(input_records)
+        input_df = (
+            self.input_anchor.connections[0].record_containers[0].build_dataframe()
+        )
+        self.output_anchor.push_records(
+            generate_records_from_df(input_df, self.output_anchor.record_info)
+        )
 
         self.clear_all_input_records()
 

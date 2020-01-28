@@ -32,7 +32,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         "input_anchors",
         "output_anchors",
         "workflow_config",
-        "failure_occurred"
+        "failure_occurred",
     ]
 
     def __init__(

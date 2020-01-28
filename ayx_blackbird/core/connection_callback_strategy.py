@@ -1,6 +1,6 @@
 """Connection callback strategy definitions."""
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from .connection_interface import ConnectionInterface
 from .events import PluginEvents
@@ -18,7 +18,7 @@ class ConnectionCallbackStrategy(ABC):
         """Construct a callback strategy."""
         self.plugin = plugin
 
-    def update_progress_callback(self) -> None:
+    def update_progress_callback(self, **_: Any) -> None:
         """Update input progress percentage."""
         import numpy as np
 
@@ -41,23 +41,26 @@ class ConnectionCallbackStrategy(ABC):
         logger.exception(e)
         self.plugin.engine.error(
             self.plugin.engine.xmsg(
-                f"Unexpected error occurred in plugin, please see log file: {self.plugin.log_filepath}"
+                "Unexpected error occurred in plugin, "
+                f"please see log file: {self.plugin.log_filepath}"
             )
         )
-        self.plugin.notify_topic(PluginEvents.PLUGIN_FAILURE)
+        self.plugin.notify_topic(PluginEvents.PLUGIN_FAILURE, exception=e)
 
     @abstractmethod
-    def connection_initialized_callback(self) -> None:
+    def connection_initialized_callback(self, **_: Any) -> None:
         """Run callback for connection initialization."""
         pass
 
     @abstractmethod
-    def record_received_callback(self, connection: ConnectionInterface) -> None:
+    def record_received_callback(
+        self, connection: ConnectionInterface, **_: Any
+    ) -> None:
         """Run callback for when a record is received."""
         pass
 
     @abstractmethod
-    def connection_closed_callback(self) -> None:
+    def connection_closed_callback(self, **_: Any) -> None:
         """Run callback for connection closing."""
         pass
 
@@ -65,7 +68,7 @@ class ConnectionCallbackStrategy(ABC):
 class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for workflow runs."""
 
-    def connection_initialized_callback(self) -> None:
+    def connection_initialized_callback(self, **_: Any) -> None:
         """Run callback for connection initialization."""
         if self.plugin.all_connections_initialized and not self.plugin.failure_occurred:
             try:
@@ -74,19 +77,24 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
             except Exception as e:
                 self.handle_plugin_error(e)
 
-    def record_received_callback(self, connection: ConnectionInterface) -> None:
+    def record_received_callback(
+        self, connection: ConnectionInterface, **_: Any
+    ) -> None:
         """Process single records by batch size."""
         batch_size = self.plugin.record_batch_size
         if batch_size is None:
             return
 
-        if len(connection.record_containers[0].records) >= batch_size and not self.plugin.failure_occurred:
+        if (
+            len(connection.record_containers[0].records) >= batch_size
+            and not self.plugin.failure_occurred
+        ):
             try:
                 self.plugin.process_records()
             except Exception as e:
                 self.handle_plugin_error(e)
 
-    def connection_closed_callback(self) -> None:
+    def connection_closed_callback(self, **_: Any) -> None:
         """Process any remaining records and finalize."""
         if self.plugin.all_connections_closed and not self.plugin.failure_occurred:
             try:
@@ -100,7 +108,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
 class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for update only runs."""
 
-    def connection_initialized_callback(self) -> None:
+    def connection_initialized_callback(self, **_: Any) -> None:
         """Run callback for connection initialization."""
         if self.plugin.all_connections_initialized and not self.plugin.failure_occurred:
             try:
@@ -108,11 +116,13 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
             except Exception as e:
                 self.handle_plugin_error(e)
 
-    def record_received_callback(self, connection: ConnectionInterface) -> None:
+    def record_received_callback(
+        self, connection: ConnectionInterface, **_: Any
+    ) -> None:
         """Raise error since this should never be called in update only mode."""
         raise RuntimeError("Record received in update only mode.")
 
-    def connection_closed_callback(self) -> None:
+    def connection_closed_callback(self, **_: Any) -> None:
         """Close all anchors."""
         if self.plugin.all_connections_closed and not self.plugin.failure_occurred:
             try:

@@ -1,5 +1,5 @@
 """Connection class definitions."""
-from typing import List, TYPE_CHECKING
+from typing import Any, List, TYPE_CHECKING
 
 from AlteryxPythonSDK import RecordInfo, RecordRef
 
@@ -21,7 +21,7 @@ class ConnectionInterface(ObservableMixin):
         "__record_info",
         "progress_percentage",
         "status",
-        "plugin_initialization_success",
+        "plugin_failed",
     ]
 
     def __init__(self, plugin: "BasePlugin", connection_name: str) -> None:
@@ -31,11 +31,14 @@ class ConnectionInterface(ObservableMixin):
         self.__record_info = None
         self.progress_percentage = 0.0
         self.status = ConnectionStatus.CREATED
-        self.plugin_initialization_success = True
+        self.plugin_failed = False
         self.record_containers: List[BaseRecordContainer] = []
 
         plugin.subscribe(
             PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
+        )
+        plugin.subscribe(
+            PluginEvents.PLUGIN_FAILURE, self.plugin_failure_callback
         )
 
     @property
@@ -47,17 +50,21 @@ class ConnectionInterface(ObservableMixin):
         """Add a new record container."""
         self.record_containers.append(container)
 
-    def plugin_initialization_callback(self, value: bool) -> None:
+    def plugin_initialization_callback(self, value: bool, **_: Any) -> None:
         """Set success of plugin initialization."""
-        self.plugin_initialization_success = value
+        self.plugin_failed = not value
+
+    def plugin_failure_callback(self, **_: Any):
+        """Set failed status from plugin."""
+        self.plugin_failed = True
 
     def ii_init(self, record_info: RecordInfo) -> bool:
         """Initialize the connection."""
         self.status = ConnectionStatus.INITIALIZED
         self.__record_info = record_info
-        self.notify_topic(ConnectionEvents.CONNECTION_INITIALIZED)
+        self.notify_topic(ConnectionEvents.CONNECTION_INITIALIZED, connection=self)
 
-        return self.plugin_initialization_success
+        return not self.plugin_failed
 
     def ii_push_record(self, record: RecordRef) -> bool:
         """Receive a record."""
@@ -68,14 +75,16 @@ class ConnectionInterface(ObservableMixin):
 
         self.notify_topic(ConnectionEvents.RECORD_RECEIVED, connection=self)
 
-        return True
+        return not self.plugin_failed
 
     def ii_update_progress(self, d_percent: float) -> None:
         """Update progress of incoming data."""
         self.progress_percentage = max(d_percent, 0)
-        self.notify_topic(ConnectionEvents.PROGRESS_UPDATE)
+        self.notify_topic(
+            ConnectionEvents.PROGRESS_UPDATE, connection=self, percent=d_percent
+        )
 
     def ii_close(self) -> None:
         """Close the connection."""
         self.status = ConnectionStatus.CLOSED
-        self.notify_topic(ConnectionEvents.CONNECTION_CLOSED)
+        self.notify_topic(ConnectionEvents.CONNECTION_CLOSED, connection=self)
