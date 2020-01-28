@@ -67,11 +67,17 @@ def task_pytest():
     return {"actions": [f"pytest tests"], "file_dep": file_deps}
 
 
-def list_files(directory):
+def list_files(directory, ignore_extensions=None):
     import os
+
+    if ignore_extensions is None:
+        ignore_extensions = []
 
     fs = []
     for root, directories, files in os.walk(directory):
         for file in files:
-            fs.append(os.path.join(root, file))
+            file = os.path.join(root, file)
+            filename, file_extension = os.path.splitext(file)
+            if file_extension not in ignore_extensions:
+                fs.append(file)
     return fs
