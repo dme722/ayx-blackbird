@@ -55,7 +55,7 @@ class ConnectionInterface(ObservableMixin):
         """Initialize the connection."""
         self.status = ConnectionStatus.INITIALIZED
         self.__record_info = record_info
-        self.notify_topic(ConnectionEvents.CONNECTION_INITIALIZED, self)
+        self.notify_topic(ConnectionEvents.CONNECTION_INITIALIZED)
 
         return self.plugin_initialization_success
 
@@ -66,16 +66,16 @@ class ConnectionInterface(ObservableMixin):
         for container in self.record_containers:
             container.add_record(record)
 
-        self.notify_topic(ConnectionEvents.RECORD_RECEIVED, self)
+        self.notify_topic(ConnectionEvents.RECORD_RECEIVED, connection=self)
 
         return True
 
     def ii_update_progress(self, d_percent: float) -> None:
         """Update progress of incoming data."""
         self.progress_percentage = max(d_percent, 0)
-        self.notify_topic(ConnectionEvents.PROGRESS_UPDATE, self)
+        self.notify_topic(ConnectionEvents.PROGRESS_UPDATE)
 
     def ii_close(self) -> None:
         """Close the connection."""
         self.status = ConnectionStatus.CLOSED
-        self.notify_topic(ConnectionEvents.CONNECTION_CLOSED, self)
+        self.notify_topic(ConnectionEvents.CONNECTION_CLOSED)

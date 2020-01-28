@@ -21,10 +21,10 @@ class ObservableMixin:
         """Subscribe to all topics."""
         self._subscribers_to_all.append(callback)
 
-    def notify_topic(self, event: Any, payload: Any) -> None:
+    def notify_topic(self, event: Any, **payload) -> None:
         """Notify a topic of an event."""
         for callback in self._subscribers[event]:
-            callback(payload)
+            callback(**payload)
 
         for callback in self._subscribers_to_all:
-            callback(payload)
+            callback(**payload)

@@ -20,3 +20,4 @@ class PluginEvents:
     OUTGOING_CONNECTION_ADDED = "pi_add_outgoing_connection"
     PI_CLOSE = "pi_close"
     PI_PUSH_ALL_RECORDS = "pi_push_all_records"
+    PLUGIN_FAILURE = "plugin_failure"

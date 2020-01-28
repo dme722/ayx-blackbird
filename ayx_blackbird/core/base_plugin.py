@@ -1,4 +1,7 @@
 """Base plugin definition."""
+import logging
+import os
+import sys
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
@@ -29,6 +32,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         "input_anchors",
         "output_anchors",
         "workflow_config",
+        "failure_occurred"
     ]
 
     def __init__(
@@ -45,6 +49,10 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         self.engine = EngineProxy(alteryx_engine, tool_id)
 
         self.tool_config = ToolConfiguration(self.tool_name, output_anchor_mgr)
+
+        self.failure_occurred = False
+
+        self.configure_logger()
 
         # These properties get assigned in pi_init
         self.input_anchors: List[InputAnchor] = []
@@ -117,6 +125,25 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
                 connection.add_record_container(
                     ParsedRecordContainer(connection.record_info)
                 )
+
+    def configure_logger(self) -> None:
+        """Configure the logger."""
+        logging.basicConfig(filename=self.log_filepath, level=logging.DEBUG)
+
+    @property
+    def log_filepath(self) -> str:
+        """Get the log filename."""
+        if sys.platform == "win32":
+            log_directory = os.path.join(os.environ["LOCALAPPDATA"], "Alteryx", "Log")
+        else:
+            log_directory = os.path.join("/var", "/tmp")
+
+        return os.path.join(log_directory, f"{self.tool_name}{self.tool_id}.log")
+
+    @property
+    def logger(self) -> logging.Logger:
+        """Get logger."""
+        return logging.getLogger(self.log_filepath)
 
     @property
     def callback_strategy(self) -> ConnectionCallbackStrategy:
