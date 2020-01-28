@@ -6,7 +6,8 @@
     <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
     </InputConnections>
     <OutputConnections>
-      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+      <Connection Name="Output1" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+      <Connection Name="Output2" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
     </OutputConnections>
   </GuiSettings>
   <Properties>

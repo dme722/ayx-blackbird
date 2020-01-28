@@ -50,3 +50,6 @@ class EngineProxy:
     def output_tool_progress(self, percent: float) -> None:
         """Update tool progress."""
         self._engine.output_tool_progress(self._tool_id, percent)
+
+    def create_record_info(self) -> Sdk.RecordInfo:
+        return Sdk.RecordInfo(self._engine)

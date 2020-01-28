@@ -1,5 +1,5 @@
 """Example tool."""
-from ayx_blackbird import BasePlugin
+from ayx_blackbird.core import BasePlugin
 from ayx_blackbird.records import generate_records_from_df
 
 

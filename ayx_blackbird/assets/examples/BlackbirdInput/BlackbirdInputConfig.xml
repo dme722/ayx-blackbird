@@ -2,17 +2,14 @@
 <AlteryxJavaScriptPlugin>
   <EngineSettings EngineDll="Python" EngineDllEntryPoint="main.py" SDKVersion="10.1" />
   <GuiSettings Html="index.html" Icon="icon.png" SDKVersion="10.1">
-    <InputConnections>
-    <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
-    </InputConnections>
     <OutputConnections>
       <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
     </OutputConnections>
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Blackbird Passthrough</Name>
-      <Description>Blackbird Passthrough</Description>
+      <Name>Blackbird Input</Name>
+      <Description>Blackbird Input</Description>
       <ToolVersion>1.0</ToolVersion>
       <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>

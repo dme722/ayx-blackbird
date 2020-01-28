@@ -5,7 +5,15 @@ import click
 
 import xmltodict
 
-example_tool_name = "BlackbirdPassthrough"
+name_to_tool = {
+    "input": "BlackbirdInput",
+    "multiple-inout": "BlackbirdMultipleInOut",
+    "multiple-inputs": "BlakcbirdMultipleInputs",
+    "multiple-outputs": "BlackbirdMultipleOutputs",
+    "optional": "BlackbirdOptional",
+    "output": "BlackbirdOutput",
+    "passthrough": "BlackbirdPassthrough",
+}
 
 
 @click.group()
@@ -14,13 +22,19 @@ def main():
 
 
 @main.command()
-@click.option("--name", default=example_tool_name, help="Name of the tool to create")
+@click.option("--name", help="Name of the tool to create")
 @click.option(
     "--tool_directory",
     default="tools",
     help="Name of the top level tool directory to put this tool in.",
 )
-def create_ayx_plugin(name, tool_directory):
+@click.option(
+    "--tool_type",
+    default="passthrough",
+    help="The type of tool to create. " +
+            "Must be one of: " + ", ".join(name_to_tool.keys()),
+)
+def create_ayx_plugin(name, tool_directory, tool_type):
     click.echo("Creating Alteryx Plugin...")
 
     if not os.path.isdir(tool_directory):
@@ -33,19 +47,20 @@ def create_ayx_plugin(name, tool_directory):
         )
         return
 
-    make_copy_of_example_tool(name, tool_directory)
-    apply_name_change(name, tool_directory)
+    example_tool_name = name_to_tool[tool_type]
+    make_copy_of_example_tool(name, tool_directory, example_tool_name)
+    apply_name_change(name, example_tool_name, tool_directory)
 
 
 def setup_tool_dir(tool_directory):
     shutil.copytree(
-        os.path.join(get_install_dir(), "assets", "base_tool_config"), tool_directory
+        os.path.join(get_install_dir(), "dev_tools", "assets", "base_tool_config"), tool_directory
     )
 
 
-def make_copy_of_example_tool(new_tool_name, dest_dir):
+def make_copy_of_example_tool(new_tool_name, dest_dir, example_tool_name):
     shutil.copytree(
-        os.path.join(get_install_dir(), "Examples", example_tool_name),
+        os.path.join(get_install_dir(), "dev_tools", "Examples", example_tool_name),
         os.path.join(dest_dir, new_tool_name),
     )
 
@@ -54,16 +69,16 @@ def get_install_dir():
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def apply_name_change(name, tool_directory):
+def apply_name_change(name, example_tool_name, tool_directory):
     old_config_path = os.path.join(
         tool_directory, name, f"{example_tool_name}Config.xml"
     )
     new_config_path = update_config_name(old_config_path, name)
     update_name_in_config(new_config_path, name)
-    update_name_in_main_py(tool_directory, name)
+    update_name_in_main_py(tool_directory, name, example_tool_name)
 
 
-def update_name_in_main_py(tool_directory, name):
+def update_name_in_main_py(tool_directory, name, example_tool_name):
     filepath = os.path.join(tool_directory, name, "main.py")
     with open(filepath, "r") as f:
         s = f.read()

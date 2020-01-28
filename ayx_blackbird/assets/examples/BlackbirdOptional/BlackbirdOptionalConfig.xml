@@ -3,7 +3,7 @@
   <EngineSettings EngineDll="Python" EngineDllEntryPoint="main.py" SDKVersion="10.1" />
   <GuiSettings Html="index.html" Icon="icon.png" SDKVersion="10.1">
     <InputConnections>
-    <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    <Connection Name="Input" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
     </InputConnections>
     <OutputConnections>
       <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
