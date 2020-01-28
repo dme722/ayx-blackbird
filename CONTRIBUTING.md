@@ -26,54 +26,61 @@ The following is a set of guidelines for contributing to ayx-blackbird and its p
   
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [Atom Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [atom@github.com](mailto:atom@github.com).
+This project and everyone participating in it is governed by the [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [dme722@gmail.com](mailto:dme722@gmail.com).
 
 #### Package Conventions
 
-- TODO
+This is primarily a Python package and therefore follows the following Python coding standards:
+
+- Linting:
+    - [black](https://black.readthedocs.io/en/stable/): Linting rules
+    - [flake8](http://flake8.pycqa.org/en/latest/): Linting rules
+    - [mypy](http://mypy-lang.org/): Static type enforcement
+
 
 ### Design Decisions
 
-- TODO
+Many design decisions made in this library are based on the [Gang of Four book](https://www.amazon.com/Design-Patterns-Object-Oriented-Addison-Wesley-Professional-ebook/dp/B000SEIBB8). 
+For an overview of the designs in this book, please see this [reference](http://www.blackwasp.co.uk/gofpatterns.aspx).
+
+The key design patterns used in this library are:
+- [Proxy]()
+- [Observable]()
+- [Strategy]()
+- [Mixins]()
+
+Additionally, this library is based on the concept of inheritance. A user is intended to install this library, and inherit from `ayx_blackbird.core.BasePlugin`. From there, any custom behviour can be specified by overriding methods/properties of the base class.
 
 ## How Can I Contribute?
 
 ### Reporting Bugs
 
-This section guides you through submitting a bug report for Atom. Following these guidelines helps maintainers and the community understand your report :pencil:, reproduce the behavior :computer: :computer:, and find related reports :mag_right:.
+This section guides you through submitting a bug report for `ayx_blackbird`. Following these guidelines helps maintainers and the community understand your report :pencil:, reproduce the behavior :computer: :computer:, and find related reports :mag_right:.
 
-Before creating bug reports, please check [this list](#before-submitting-a-bug-report) as you might find out that you don't need to create one. When you are creating a bug report, please [include as many details as possible](#how-do-i-submit-a-good-bug-report). Fill out [the required template](https://github.com/atom/.github/blob/master/.github/ISSUE_TEMPLATE/bug_report.md), the information it asks for helps us resolve issues faster.
 
 > **Note:** If you find a **Closed** issue that seems like it is the same thing that you're experiencing, open a new issue and include a link to the original issue in the body of your new one.
 
-#### Submitting A Bug Report
+#### Submitting A Bug Report/Enhancement Suggestion
 
-* **Check the [debugging guide](https://flight-manual.atom.io/hacking-atom/sections/debugging/).** You might be able to find the cause of the problem and fix things yourself. Most importantly, check if you can reproduce the problem [in the latest version of Atom](https://flight-manual.atom.io/hacking-atom/sections/debugging/#update-to-the-latest-version), if the problem happens when you run Atom in [safe mode](https://flight-manual.atom.io/hacking-atom/sections/debugging/#check-if-the-problem-shows-up-in-safe-mode), and if you can get the desired behavior by changing [Atom's or packages' config settings](https://flight-manual.atom.io/hacking-atom/sections/debugging/#check-atom-and-package-settings).
-* **Check the [FAQs on the forum](https://discuss.atom.io/c/faq)** for a list of common questions and problems.
-* **Determine [which repository the problem should be reported in](#atom-and-packages)**.
-* **Perform a [cursory search](https://github.com/search?q=+is%3Aissue+user%3Aatom)** to see if the problem has already been reported. If it has **and the issue is still open**, add a comment to the existing issue instead of opening a new one.
-
-#### Submitting An Enhancement Suggestion
-
-* **Check the [debugging guide](https://flight-manual.atom.io/hacking-atom/sections/debugging/)** for tips — you might discover that the enhancement is already available. Most importantly, check if you're using [the latest version of Atom](https://flight-manual.atom.io/hacking-atom/sections/debugging/#update-to-the-latest-version) and if you can get the desired behavior by changing [Atom's or packages' config settings](https://flight-manual.atom.io/hacking-atom/sections/debugging/#check-atom-and-package-settings).
-* **Check if there's already [a package](https://atom.io/packages) which provides that enhancement.**
-* **Determine [which repository the enhancement should be suggested in](#atom-and-packages).**
-* **Perform a [cursory search](https://github.com/search?q=+is%3Aissue+user%3Aatom)** to see if the enhancement has already been suggested. If it has, add a comment to the existing issue instead of opening a new one.
+* **Make sure it's a problem.** You might be able to find the cause of the problem and fix things yourself. Most importantly, check if you can reproduce the problem in the latest version of ayx_blackbird..
+* **Check the issues board** — you might discover that the bug/enhancement is already listed. Most importantly, check if you're using the latest version of ayx_blackbird.
 
 ### Your First Code Contribution
 
-Unsure where to begin contributing to Atom? You can start by looking through these `beginner` and `help-wanted` issues:
+Unsure where to begin contributing to ayx_blackbird? You can start by looking through the issues:
 
-* [Beginner issues][beginner] - issues which should only require a few lines of code, and a test or two.
-* [Help wanted issues][help-wanted] - issues which should be a bit more involved than `beginner` issues.
+* Have a question about how to add a feature, or want to know if it's a good idea?
+    - Open an issue.
+    - Email me at [dme722@gmail.com](mailto:dme722@gmail.com)
 
-Both issue lists are sorted by total number of comments. While not perfect, number of comments is a reasonable proxy for impact a given change will have.
-
-If you want to read about using Atom or developing packages in Atom, the [Atom Flight Manual](https://flight-manual.atom.io) is free and available online. You can find the source to the manual in [atom/flight-manual.atom.io](https://github.com/atom/flight-manual.atom.io).
 
 #### Local development
 
-- TODO
+- Clone the repo.
+- Make sure to have the `requirements-dev.txt` `pip` installed.
+- Make any changes you want.
+- From the root of the repo (with the conda environment of the tool you're testing activated) `pip install .` to update the version of ayx_blackbird for the desired tool.
+- Run `doit` at the command line from the root of the repo to run linting checks and tests.
 
 ### Pull Requests
 
