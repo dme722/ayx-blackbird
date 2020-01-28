@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from typing import Any, TYPE_CHECKING
 
 from .connection_interface import ConnectionInterface
-from .events import PluginEvents
 
 if TYPE_CHECKING:
     from .base_plugin import BasePlugin
@@ -22,30 +21,20 @@ class ConnectionCallbackStrategy(ABC):
         """Update input progress percentage."""
         import numpy as np
 
-        percent = np.mean(
-            [
-                connection.progress_percentage
-                for anchor in self.plugin.input_anchors
-                for connection in anchor.connections
-            ]
+        percent = float(
+            np.mean(
+                [
+                    connection.progress_percentage
+                    for anchor in self.plugin.input_anchors
+                    for connection in anchor.connections
+                ]
+            )
         )
 
         self.plugin.engine.output_tool_progress(percent)
 
         for anchor in self.plugin.output_anchors:
             anchor.update_progress(percent)
-
-    def handle_plugin_error(self, e: Exception) -> None:
-        """Log a plugin error to the log and a generic error to Designer."""
-        logger = self.plugin.logger
-        logger.exception(e)
-        self.plugin.engine.error(
-            self.plugin.engine.xmsg(
-                "Unexpected error occurred in plugin, "
-                f"please see log file: {self.plugin.log_filepath}"
-            )
-        )
-        self.plugin.notify_topic(PluginEvents.PLUGIN_FAILURE, exception=e)
 
     @abstractmethod
     def connection_initialized_callback(self, **_: Any) -> None:
@@ -75,7 +64,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
                 self.plugin.set_record_containers()
                 self.plugin.initialize_plugin()
             except Exception as e:
-                self.handle_plugin_error(e)
+                self.plugin.handle_plugin_error(e)
 
     def record_received_callback(
         self, connection: ConnectionInterface, **_: Any
@@ -92,7 +81,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
             try:
                 self.plugin.process_records()
             except Exception as e:
-                self.handle_plugin_error(e)
+                self.plugin.handle_plugin_error(e)
 
     def connection_closed_callback(self, **_: Any) -> None:
         """Process any remaining records and finalize."""
@@ -102,7 +91,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
                 self.plugin.on_complete()
                 self.plugin.close_output_anchors()
             except Exception as e:
-                self.handle_plugin_error(e)
+                self.plugin.handle_plugin_error(e)
 
 
 class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
@@ -114,7 +103,7 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
             try:
                 self.plugin.initialize_plugin()
             except Exception as e:
-                self.handle_plugin_error(e)
+                self.plugin.handle_plugin_error(e)
 
     def record_received_callback(
         self, connection: ConnectionInterface, **_: Any
@@ -128,4 +117,4 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
             try:
                 self.plugin.close_output_anchors()
             except Exception as e:
-                self.handle_plugin_error(e)
+                self.plugin.handle_plugin_error(e)

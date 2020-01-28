@@ -14,7 +14,7 @@ from .connection_callback_strategy import (
     WorkflowRunConnectionCallbackStrategy,
 )
 from .connection_interface import ConnectionInterface
-from .events import ConnectionEvents
+from .events import ConnectionEvents, PluginEvents
 from ..anchors import InputAnchor, OutputAnchor
 from ..config import ToolConfiguration, WorkflowConfiguration
 from ..mixins import AnchorUtilsMixin, ObservableMixin
@@ -104,12 +104,17 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     def pi_push_all_records(self, n_record_limit: int) -> bool:
         """Push all records when no inputs are connected."""
         if len(self.required_input_anchors) == 0:
-            success = self.initialize_plugin()
-            if success and self.engine.update_only_mode:
-                self.on_complete()
-            self.close_output_anchors()
+            try:
+                success = self.initialize_plugin()
+                if success and not self.engine.update_only_mode:
+                    self.on_complete()
+                self.close_output_anchors()
 
-            return success
+                return success
+            except Exception as e:
+                self.handle_plugin_error(e)
+
+                return False
 
         self.engine.error(self.engine.xmsg("Missing Incoming Connection(s)."))
         return False
@@ -129,6 +134,18 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     def configure_logger(self) -> None:
         """Configure the logger."""
         logging.basicConfig(filename=self.log_filepath, level=logging.DEBUG)
+
+    def handle_plugin_error(self, e: Exception) -> None:
+        """Log a plugin error to the log and a generic error to Designer."""
+        logger = self.logger
+        logger.exception(e)
+        self.engine.error(
+            self.engine.xmsg(
+                "Unexpected error occurred in plugin, "
+                f"please see log file: {self.log_filepath}"
+            )
+        )
+        self.notify_topic(PluginEvents.PLUGIN_FAILURE, exception=e)
 
     @property
     def log_filepath(self) -> str:

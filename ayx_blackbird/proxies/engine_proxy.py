@@ -52,4 +52,5 @@ class EngineProxy:
         self._engine.output_tool_progress(self._tool_id, percent)
 
     def create_record_info(self) -> Sdk.RecordInfo:
+        """Create a new empty record info object."""
         return Sdk.RecordInfo(self._engine)

@@ -37,9 +37,7 @@ class ConnectionInterface(ObservableMixin):
         plugin.subscribe(
             PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
         )
-        plugin.subscribe(
-            PluginEvents.PLUGIN_FAILURE, self.plugin_failure_callback
-        )
+        plugin.subscribe(PluginEvents.PLUGIN_FAILURE, self.plugin_failure_callback)
 
     @property
     def record_info(self) -> RecordInfo:
@@ -54,7 +52,7 @@ class ConnectionInterface(ObservableMixin):
         """Set success of plugin initialization."""
         self.plugin_failed = not value
 
-    def plugin_failure_callback(self, **_: Any):
+    def plugin_failure_callback(self, **_: Any) -> None:
         """Set failed status from plugin."""
         self.plugin_failed = True
 

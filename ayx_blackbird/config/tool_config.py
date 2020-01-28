@@ -47,7 +47,11 @@ class ToolConfiguration:
         """Build the input anchors based on tool config settings."""
         anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
 
-        input_anchor_configs = anchor_settings["InputConnections"]["Connection"]
+        input_anchors = anchor_settings.get("InputConnections")
+        if input_anchors is None:
+            input_anchor_configs = []
+        else:
+            input_anchor_configs = input_anchors["Connection"]
         if not isinstance(input_anchor_configs, list):
             input_anchor_configs = [input_anchor_configs]
 
@@ -60,7 +64,13 @@ class ToolConfiguration:
         """Build the output anchors based on tool config settings."""
         anchor_settings = self._tool_config["AlteryxJavaScriptPlugin"]["GuiSettings"]
 
-        output_anchor_configs = anchor_settings["OutputConnections"]["Connection"]
+        output_anchors = anchor_settings.get("OutputConnections")
+
+        if output_anchors is None:
+            output_anchor_configs = []
+        else:
+            output_anchor_configs = output_anchors["Connection"]
+
         if not isinstance(output_anchor_configs, list):
             output_anchor_configs = [output_anchor_configs]
 

@@ -10,8 +10,8 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Blackbird Passthrough</Name>
-      <Description>Blackbird Passthrough</Description>
+      <Name>Blackbird Output</Name>
+      <Description>Blackbird Output</Description>
       <ToolVersion>1.0</ToolVersion>
       <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>

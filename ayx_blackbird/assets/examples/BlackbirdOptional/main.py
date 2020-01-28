@@ -9,7 +9,7 @@ class AyxPlugin(BasePlugin):
     @property
     def tool_name(self) -> str:
         """Get the tool name."""
-        return "BlackbirdPassthrough"
+        return "BlackbirdOptional"
 
     @property
     def record_batch_size(self):

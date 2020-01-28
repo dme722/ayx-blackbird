@@ -1,3 +1,4 @@
+"""CLI implementation for ayx-blackbird package."""
 import os
 import shutil
 
@@ -17,7 +18,8 @@ name_to_tool = {
 
 
 @click.group()
-def main():
+def main() -> None:
+    """Do nothing."""
     pass
 
 
@@ -31,14 +33,16 @@ def main():
 @click.option(
     "--tool_type",
     default="passthrough",
-    help="The type of tool to create. " +
-            "Must be one of: " + ", ".join(name_to_tool.keys()),
+    help="The type of tool to create. "
+    + "Must be one of: "
+    + ", ".join(name_to_tool.keys()),
 )
-def create_ayx_plugin(name, tool_directory, tool_type):
+def create_ayx_plugin(name: str, tool_directory: str, tool_type: str) -> None:
+    """Create a new plugin plugin for Alteryx Designer."""
     click.echo("Creating Alteryx Plugin...")
 
     if not os.path.isdir(tool_directory):
-        setup_tool_dir(tool_directory)
+        _setup_tool_dir(tool_directory)
 
     if os.path.isdir(os.path.join(tool_directory, name)):
         click.echo(
@@ -48,37 +52,41 @@ def create_ayx_plugin(name, tool_directory, tool_type):
         return
 
     example_tool_name = name_to_tool[tool_type]
-    make_copy_of_example_tool(name, tool_directory, example_tool_name)
-    apply_name_change(name, example_tool_name, tool_directory)
+    _make_copy_of_example_tool(name, tool_directory, example_tool_name)
+    _apply_name_change(name, example_tool_name, tool_directory)
 
 
-def setup_tool_dir(tool_directory):
+def _setup_tool_dir(tool_directory: str) -> None:
     shutil.copytree(
-        os.path.join(get_install_dir(), "dev_tools", "assets", "base_tool_config"), tool_directory
+        os.path.join(_get_install_dir(), "assets", "base_tool_config"), tool_directory
     )
 
 
-def make_copy_of_example_tool(new_tool_name, dest_dir, example_tool_name):
+def _make_copy_of_example_tool(
+    new_tool_name: str, dest_dir: str, example_tool_name: str
+) -> None:
     shutil.copytree(
-        os.path.join(get_install_dir(), "dev_tools", "Examples", example_tool_name),
+        os.path.join(_get_install_dir(), "assets", "examples", example_tool_name),
         os.path.join(dest_dir, new_tool_name),
     )
 
 
-def get_install_dir():
+def _get_install_dir() -> str:
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def apply_name_change(name, example_tool_name, tool_directory):
+def _apply_name_change(name: str, example_tool_name: str, tool_directory: str) -> None:
     old_config_path = os.path.join(
         tool_directory, name, f"{example_tool_name}Config.xml"
     )
-    new_config_path = update_config_name(old_config_path, name)
-    update_name_in_config(new_config_path, name)
-    update_name_in_main_py(tool_directory, name, example_tool_name)
+    new_config_path = _update_config_name(old_config_path, name)
+    _update_name_in_config(new_config_path, name)
+    _update_name_in_main_py(tool_directory, name, example_tool_name)
 
 
-def update_name_in_main_py(tool_directory, name, example_tool_name):
+def _update_name_in_main_py(
+    tool_directory: str, name: str, example_tool_name: str
+) -> None:
     filepath = os.path.join(tool_directory, name, "main.py")
     with open(filepath, "r") as f:
         s = f.read()
@@ -88,13 +96,13 @@ def update_name_in_main_py(tool_directory, name, example_tool_name):
         f.write(s)
 
 
-def update_config_name(filepath, name):
+def _update_config_name(filepath: str, name: str) -> str:
     new_config_path = os.path.join(os.path.dirname(filepath), f"{name}Config.xml")
     os.rename(filepath, new_config_path)
     return new_config_path
 
 
-def update_name_in_config(config_filepath, name):
+def _update_name_in_config(config_filepath: str, name: str) -> None:
     with open(config_filepath) as f:
         config = xmltodict.parse(f.read())
 
@@ -116,7 +124,8 @@ def update_name_in_config(config_filepath, name):
     default=False,
     help="Create the virtual environment and install requirements.txt.",
 )
-def install(tool_path, create_venv):
+def install(tool_path: str, create_venv: bool) -> None:
+    """Install tools from a path into Alteryx Designer."""
     click.echo("TODO: Installing to Alteryx Designer...")
 
 
@@ -126,7 +135,8 @@ def install(tool_path, create_venv):
 )
 @click.option("--yxi_name", default="package", help="Name of the YXI file.")
 @click.option("--destination_dir", default=".", help="Directory to put the YXI.")
-def create_yxi(tool_path, yxi_name, destination_dir):
+def create_yxi(tool_path: str, yxi_name: str, destination_dir: str) -> None:
+    """Create a YXI from a tools directory."""
     click.echo("Creating YXI...")
 
     yxi_path = os.path.join(destination_dir, yxi_name)

@@ -1,8 +1,8 @@
 """Example tool."""
+import AlteryxPythonSDK as Sdk
+
 from ayx_blackbird.core import BasePlugin
 from ayx_blackbird.records import generate_records_from_df
-
-import AlteryxPythonSDK as Sdk
 
 
 class AyxPlugin(BasePlugin):
@@ -11,7 +11,7 @@ class AyxPlugin(BasePlugin):
     @property
     def tool_name(self) -> str:
         """Get the tool name."""
-        return "BlackbirdPassthrough"
+        return "BlackbirdInput"
 
     @property
     def record_batch_size(self):
@@ -25,7 +25,7 @@ class AyxPlugin(BasePlugin):
 
         output_record_info = self.engine.create_record_info()
         output_record_info.add_field("x", Sdk.FieldType.float)
-        output_record_info.add_field("y", Sdk.FieldType.v_wstring)
+        output_record_info.add_field("y", Sdk.FieldType.v_wstring, size=100)
 
         self.output_anchor.record_info = output_record_info
         self.push_all_metadata()
@@ -39,6 +39,19 @@ class AyxPlugin(BasePlugin):
         """Create all records."""
         import pandas as pd
 
-        df = pd.DataFrame({"x": [1, 2, 3], "y": "hello", "world", "from blackbird"})
-        self.output_anchor.push_records(generate_records_from_df(df))
+        workflow_config_value = self.workflow_config["Value"]
+        df = pd.DataFrame(
+            {
+                "x": [1, 2, 3],
+                "y": ["hello", "world", "from blackbird"],
+                "z": [
+                    workflow_config_value,
+                    workflow_config_value,
+                    workflow_config_value,
+                ],
+            }
+        )
+        self.output_anchor.push_records(
+            generate_records_from_df(df, self.output_anchor.record_info)
+        )
         self.engine.info(self.engine.xmsg("Completed processing records."))
