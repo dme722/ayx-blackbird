@@ -16,7 +16,7 @@ class AyxPlugin(BasePlugin):
     @property
     def record_batch_size(self):
         """Get the record batch size."""
-        return 10000
+        return None
 
     def initialize_plugin(self) -> bool:
         """Initialize plugin."""
@@ -26,6 +26,7 @@ class AyxPlugin(BasePlugin):
         output_record_info = self.engine.create_record_info()
         output_record_info.add_field("x", Sdk.FieldType.float)
         output_record_info.add_field("y", Sdk.FieldType.v_wstring, size=100)
+        output_record_info.add_field("z", Sdk.FieldType.float)
 
         self.output_anchor.record_info = output_record_info
         self.push_all_metadata()
