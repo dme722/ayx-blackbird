@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
+from AlteryxPythonSDK import OutputAnchorManager
+
 import xmltodict
 
 from ..anchors import InputAnchor, OutputAnchor
@@ -13,7 +15,7 @@ class ToolConfiguration:
 
     __slots__ = ["tool_name", "_tool_config", "_output_anchor_mgr"]
 
-    def __init__(self, tool_name: str, output_anchor_mgr):
+    def __init__(self, tool_name: str, output_anchor_mgr: OutputAnchorManager):
         """Initialize a tool configuration."""
         self.tool_name = tool_name
         self._tool_config = self._get_tool_config()

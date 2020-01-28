@@ -1,11 +1,18 @@
 """RawRecordContainer class definition."""
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
+from AlteryxPythonSDK import RecordInfo, RecordRef
+
+from .base_record_container import BaseRecordContainer
 from ..proxies import FieldProxy, RecordCopierProxy
 from ..utilities import fill_df_nulls_with_blackbird_nulls
 
 
-class RawRecordContainer:
+if TYPE_CHECKING:
+    import pandas as pd
+
+
+class RawRecordContainer(BaseRecordContainer):
     """Container for copying and holding raw records."""
 
     __slots__ = [
@@ -19,11 +26,12 @@ class RawRecordContainer:
 
     def __init__(
         self,
-        input_record_info,
-        storage_record_info=None,
+        input_record_info: RecordInfo,
+        storage_record_info: Optional[RecordInfo] = None,
         field_map: Optional[Dict[str, str]] = None,
-    ):
+    ) -> None:
         """Construct a container."""
+        super().__init__()
         if (storage_record_info is None) ^ (field_map is None):
             raise ValueError(
                 "storage_record_info and field_map must both be specified."
@@ -31,8 +39,7 @@ class RawRecordContainer:
 
         self._input_record_info = input_record_info
 
-        self._storage_record_info = storage_record_info
-        if self._storage_record_info is None:
+        if storage_record_info is None:
             self._storage_record_info = self._input_record_info.clone()
         else:
             self._storage_record_info = storage_record_info
@@ -52,15 +59,11 @@ class RawRecordContainer:
         }
         self.records: List[RecordCopierProxy] = []
 
-    def add_record(self, record) -> None:
+    def add_record(self, record: RecordRef) -> None:
         """Make a copy of the record and add it to the container."""
         self.records.append(self._record_copier.copy(record))
 
-    def clear_records(self) -> None:
-        """Clear all accumulated records."""
-        self.records = []
-
-    def update_with_dataframe(self, df):
+    def update_with_dataframe(self, df: "pd.DataFrame") -> None:
         """Update stored records with values from a dataframe."""
         num_rows, _ = df.shape
 

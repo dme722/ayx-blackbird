@@ -1,7 +1,11 @@
 """Connection callback strategy definitions."""
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from .connection_interface import ConnectionInterface
+
+if TYPE_CHECKING:
+    from .base_plugin import BasePlugin
 
 
 class ConnectionCallbackStrategy(ABC):
@@ -9,7 +13,7 @@ class ConnectionCallbackStrategy(ABC):
 
     __slots__ = ["plugin"]
 
-    def __init__(self, plugin):
+    def __init__(self, plugin: "BasePlugin") -> None:
         """Construct a callback strategy."""
         self.plugin = plugin
 
@@ -25,7 +29,7 @@ class ConnectionCallbackStrategy(ABC):
             ]
         )
 
-        self.plugin.engine.output_tool_progress(self.plugin.tool_id, percent)
+        self.plugin.engine.output_tool_progress(percent)
 
         for anchor in self.plugin.output_anchors:
             anchor.update_progress(percent)
@@ -49,7 +53,7 @@ class ConnectionCallbackStrategy(ABC):
 class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for workflow runs."""
 
-    def __init__(self, plugin):
+    def __init__(self, plugin: "BasePlugin") -> None:
         """Construct a callback."""
         super().__init__(plugin)
         self._num_records_since_processed = 0

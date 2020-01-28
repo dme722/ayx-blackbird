@@ -22,7 +22,7 @@ class OutputAnchor:
         name: str,
         optional: bool,
         output_anchor_mgr: Sdk.OutputAnchorManager,
-        record_info=Optional[Sdk.RecordInfo],
+        record_info: Optional[Sdk.RecordInfo] = None,
     ) -> None:
         """Initialize an output anchor."""
         self._engine_anchor_ref: Sdk.OutputAnchor = output_anchor_mgr.get_output_anchor(

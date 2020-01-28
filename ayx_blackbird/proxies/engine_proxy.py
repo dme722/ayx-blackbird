@@ -46,3 +46,7 @@ class EngineProxy:
                 Sdk.Status.update_output_config_xml,
                 xmltodict.unparse({"Configuration": workflow_config.data}),
             )
+
+    def output_tool_progress(self, percent: float) -> None:
+        """Update tool progress."""
+        self._engine.output_tool_progress(self._tool_id, percent)

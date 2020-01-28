@@ -1,9 +1,18 @@
 """Record utilities."""
+from typing import Generator, TYPE_CHECKING
+
+from AlteryxPythonSDK import RecordCreator, RecordInfo
+
 from ..proxies import FieldProxy
 from ..utilities import fill_df_nulls_with_blackbird_nulls
 
+if TYPE_CHECKING:
+    import pandas as pd
 
-def generate_records_from_df(df, record_info):
+
+def generate_records_from_df(
+    df: "pd.DataFrame", record_info: RecordInfo
+) -> Generator[RecordCreator, None, None]:
     """Generate record creators from a dataframe."""
     fill_df_nulls_with_blackbird_nulls(df)
     columns = list(df)

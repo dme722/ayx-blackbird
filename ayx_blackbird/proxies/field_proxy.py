@@ -84,7 +84,7 @@ class FieldProxy:
         """Get the value for this field from a record."""
         return self._getter(record)
 
-    def set(self, record_creator: RecordCreator, value) -> None:
+    def set(self, record_creator: RecordCreator, value: Any) -> None:
         """Set the field for a given record to a value."""
         if value is NULL_VALUE_PLACEHOLDER:
             return self.set_null(record_creator)
