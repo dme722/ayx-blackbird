@@ -11,7 +11,7 @@ class BaseRecordContainer(ABC):
     __slots__ = ["records"]
 
     def __init__(self) -> None:
-        """Construct a record container"""
+        """Construct a record container."""
         self.records: List[Any] = []
 
     @abstractmethod
