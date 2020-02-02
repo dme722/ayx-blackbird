@@ -4,4 +4,6 @@
 class OutputAnchorManager:
     """Output anchor manager mock."""
 
-    pass
+    def get_output_anchor(self, output_connection_name: str) -> OutputAnchor:
+        pass
+
