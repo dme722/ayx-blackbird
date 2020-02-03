@@ -1,7 +1,7 @@
 """RawRecordContainer class definition."""
 from typing import Dict, List, Optional, TYPE_CHECKING
 
-from AlteryxPythonSDK import RecordInfo, RecordRef
+from AlteryxPythonSDK import RecordCreator, RecordInfo, RecordRef
 
 from .base_record_container import BaseRecordContainer
 from ..proxies import FieldProxy, RecordCopierProxy
@@ -57,7 +57,7 @@ class RawRecordContainer(BaseRecordContainer):
         self._input_fields = {
             field.name: FieldProxy(field) for field in input_record_info
         }
-        self.records: List[RecordCopierProxy] = []
+        self.records: List[RecordCreator] = []
 
     def add_record(self, record: RecordRef) -> None:
         """Make a copy of the record and add it to the container."""
@@ -77,4 +77,6 @@ class RawRecordContainer(BaseRecordContainer):
         for record, (_, row) in zip(self.records, df.iterrows()):
             for column_name in list(df):
                 field = self._storage_record_info.get_field_by_name(column_name)
-                field.set(record, row[column_name])
+                if field is None:
+                    raise RuntimeError(f"Couldn't update field '{column_name}' that does not exist")
+                FieldProxy(field).set(record, row[column_name])

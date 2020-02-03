@@ -1,8 +1,7 @@
 """Mock field class definition."""
-
-
-class FieldType:
-    pass
+from .constants import FieldType
+from .record_creator import RecordCreator
+from .record_ref import RecordRef
 
 
 class Field:

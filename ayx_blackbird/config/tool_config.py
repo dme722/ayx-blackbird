@@ -51,9 +51,11 @@ class ToolConfiguration:
         if input_anchors is None:
             input_anchor_configs = []
         else:
-            input_anchor_configs = input_anchors["Connection"]
-        if not isinstance(input_anchor_configs, list):
-            input_anchor_configs = [input_anchor_configs]
+            input_anchor_configs_raw = input_anchors["Connection"]
+            if not isinstance(input_anchor_configs_raw, list):
+                input_anchor_configs = [input_anchor_configs_raw]
+            else:
+                input_anchor_configs = input_anchor_configs_raw
 
         return [
             InputAnchor(config["@Name"], config["@Optional"].lower() == "True")
@@ -69,10 +71,11 @@ class ToolConfiguration:
         if output_anchors is None:
             output_anchor_configs = []
         else:
-            output_anchor_configs = output_anchors["Connection"]
-
-        if not isinstance(output_anchor_configs, list):
-            output_anchor_configs = [output_anchor_configs]
+            output_anchor_configs_raw = output_anchors["Connection"]
+            if not isinstance(output_anchor_configs_raw, list):
+                output_anchor_configs = [output_anchor_configs_raw]
+            else:
+                output_anchor_configs = output_anchor_configs_raw
 
         return [
             OutputAnchor(

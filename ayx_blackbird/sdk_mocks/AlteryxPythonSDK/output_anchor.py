@@ -1,4 +1,6 @@
 """Mock output anchor class definition."""
+from .record_info import RecordInfo
+from .record_ref import RecordRef
 
 
 class OutputAnchor:

@@ -1,5 +1,5 @@
 """Connection class definitions."""
-from typing import Any, List, TYPE_CHECKING
+from typing import Any, List, Optional, TYPE_CHECKING
 
 from AlteryxPythonSDK import RecordInfo, RecordRef
 
@@ -28,7 +28,7 @@ class ConnectionInterface(ObservableMixin):
         """Instantiate a connection interface."""
         super().__init__()
         self.name = connection_name
-        self.__record_info = None
+        self.__record_info: Optional[RecordInfo] = None
         self.progress_percentage = 0.0
         self.status = ConnectionStatus.CREATED
         self.plugin_failed = False
@@ -40,7 +40,7 @@ class ConnectionInterface(ObservableMixin):
         plugin.subscribe(PluginEvents.PLUGIN_FAILURE, self.plugin_failure_callback)
 
     @property
-    def record_info(self) -> RecordInfo:
+    def record_info(self) -> Optional[RecordInfo]:
         """Getter for record info."""
         return self.__record_info
 
