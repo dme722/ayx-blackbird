@@ -7,4 +7,5 @@ build/
 dist/
 __pycache__/
 *.doit*
+*.srctrl*
 .mypy_cache

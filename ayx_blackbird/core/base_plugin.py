@@ -107,6 +107,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
             try:
                 success = self.initialize_plugin()
                 if success and not self.engine.update_only_mode:
+                    self.process_records()
                     self.on_complete()
                 self.close_output_anchors()
 

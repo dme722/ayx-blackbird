@@ -56,7 +56,7 @@ class ToolConfiguration:
             input_anchor_configs = [input_anchor_configs]
 
         return [
-            InputAnchor(config["@Name"], config["@Optional"].lower() == "True")
+            InputAnchor(config["@Name"], config["@Optional"].lower() == "true")
             for config in input_anchor_configs
         ]
 
@@ -77,7 +77,7 @@ class ToolConfiguration:
         return [
             OutputAnchor(
                 config["@Name"],
-                config["@Optional"].lower() == "True",
+                config["@Optional"].lower() == "true",
                 self._output_anchor_mgr,
             )
             for config in output_anchor_configs

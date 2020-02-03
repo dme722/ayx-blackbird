@@ -1,4 +1,6 @@
 """Example tool."""
+import AlteryxPythonSDK as Sdk
+
 from ayx_blackbird.core import BasePlugin
 from ayx_blackbird.records import generate_records_from_df
 
@@ -22,7 +24,12 @@ class AyxPlugin(BasePlugin):
         self.input_anchor = self.get_input_anchor("Input")
         self.output_anchor = self.get_output_anchor("Output")
 
-        output_record_info = self.input_anchor.connections[0].record_info.clone()
+        if not self.input_anchor.connections:
+            output_record_info = self.engine.create_record_info()
+        else:
+            output_record_info = self.input_anchor.connections[0].record_info.clone()
+
+        output_record_info.add_field("x", Sdk.FieldType.float)
 
         self.output_anchor.record_info = output_record_info
         self.push_all_metadata()
@@ -30,11 +37,17 @@ class AyxPlugin(BasePlugin):
 
     def process_records(self) -> None:
         """Process records in batches."""
-        input_df = (
-            self.input_anchor.connections[0].record_containers[0].build_dataframe()
-        )
+        if self.input_anchor.connections:
+            df = (
+                self.input_anchor.connections[0].record_containers[0].build_dataframe()
+            )
+            df["x"] = self.workflow_config["Value"]
+        else:
+            import pandas as pd
+            df = pd.DataFrame({"x": [self.workflow_config["Value"]]})
+
         self.output_anchor.push_records(
-            generate_records_from_df(input_df, self.output_anchor.record_info)
+            generate_records_from_df(df, self.output_anchor.record_info)
         )
 
         self.clear_all_input_records()
