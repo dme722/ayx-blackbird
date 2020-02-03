@@ -25,9 +25,13 @@ class OutputAnchor:
         record_info: Optional[Sdk.RecordInfo] = None,
     ) -> None:
         """Initialize an output anchor."""
-        self._engine_anchor_ref: Sdk.OutputAnchor = output_anchor_mgr.get_output_anchor(
+        engine_anchor_ref: Sdk.OutputAnchor = output_anchor_mgr.get_output_anchor(
             name
         )
+        if self._engine_anchor_ref is None:
+            raise RuntimeError(f"Can't find output anchor: {name}")
+
+        self._engine_anchor_ref: Sdk.OutputAnchor = engine_anchor_ref
         self._metadata_pushed: bool = False
         self.__record_info = record_info
         self.name = name
@@ -36,7 +40,7 @@ class OutputAnchor:
         self.push_records: Callable = self._raise_metadata_error
 
     @property
-    def record_info(self) -> Sdk.RecordInfo:
+    def record_info(self) -> Optional[Sdk.RecordInfo]:
         """Getter for record info."""
         return self.__record_info
 
