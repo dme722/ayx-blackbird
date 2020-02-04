@@ -38,12 +38,11 @@ class AyxPlugin(BasePlugin):
     def process_records(self) -> None:
         """Process records in batches."""
         if self.input_anchor.connections:
-            df = (
-                self.input_anchor.connections[0].record_containers[0].build_dataframe()
-            )
+            df = self.input_anchor.connections[0].record_containers[0].build_dataframe()
             df["x"] = self.workflow_config["Value"]
         else:
             import pandas as pd
+
             df = pd.DataFrame({"x": [self.workflow_config["Value"]]})
 
         self.output_anchor.push_records(

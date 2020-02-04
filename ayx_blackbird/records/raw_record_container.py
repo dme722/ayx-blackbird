@@ -78,5 +78,7 @@ class RawRecordContainer(BaseRecordContainer):
             for column_name in list(df):
                 field = self._storage_record_info.get_field_by_name(column_name)
                 if field is None:
-                    raise RuntimeError(f"Couldn't update field '{column_name}' that does not exist")
+                    raise RuntimeError(
+                        f"Couldn't update field '{column_name}' that does not exist"
+                    )
                 FieldProxy(field).set(record, row[column_name])

@@ -129,7 +129,9 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         for anchor in self.input_anchors:
             for connection in anchor.connections:
                 if connection.record_info is None:
-                    raise RuntimeError("Record info must be present before setting containers.")
+                    raise RuntimeError(
+                        "Record info must be present before setting containers."
+                    )
 
                 connection.add_record_container(
                     ParsedRecordContainer(connection.record_info)
