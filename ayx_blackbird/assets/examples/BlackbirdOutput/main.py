@@ -1,6 +1,5 @@
 """Example tool."""
-from ayx_blackbird.core import BasePlugin
-from ayx_blackbird.records import generate_records_from_df
+from ayx_blackbird.core import BasePlugin, ConnectionInterface
 
 
 class AyxPlugin(BasePlugin):
@@ -20,23 +19,13 @@ class AyxPlugin(BasePlugin):
         """Initialize plugin."""
         self.engine.info(self.engine.xmsg("Plugin initialized."))
         self.input_anchor = self.get_input_anchor("Input")
-        self.output_anchor = self.get_output_anchor("Output")
 
-        output_record_info = self.input_anchor.connections[0].record_info.clone()
+    def initialize_connection(self, connection: ConnectionInterface) -> None:
+        """Initialize a connection."""
 
-        self.output_anchor.record_info = output_record_info
-        self.push_all_metadata()
-        return True
-
-    def process_records(self) -> None:
+    def process_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
-        input_df = (
-            self.input_anchor.connections[0].record_containers[0].build_dataframe()
-        )
-        self.output_anchor.push_records(
-            generate_records_from_df(input_df, self.output_anchor.record_info)
-        )
-
+        # Do nothing with records for now, this is an output tool
         self.clear_all_input_records()
 
     def on_complete(self) -> None:

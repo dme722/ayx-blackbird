@@ -1,13 +1,14 @@
 """Mock record ref class definition."""
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 
-from .record_info import RecordInfo
+if TYPE_CHECKING:
+    from .record_info import RecordInfo
 
 
 class RecordRef:
     """Record ref mock."""
 
-    def __init__(self, record_info: RecordInfo) -> None:
+    def __init__(self, record_info: "RecordInfo") -> None:
         """Construct a record ref."""
         self.data: Dict[str, Any] = {field.name: None for field in record_info}
 

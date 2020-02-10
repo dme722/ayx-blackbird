@@ -21,17 +21,21 @@ class EngineProxy:
 
     def error(self, message: str) -> None:
         """Display an error message in the results panel."""
-        self._engine.output_message(self._tool_id, Sdk.EngineMessageType.error, message)
+        self._engine.output_message(
+            self._tool_id, Sdk.EngineMessageType.error, str(message)
+        )
 
     def warning(self, message: str) -> None:
         """Display a warning message in the results panel."""
         self._engine.output_message(
-            self._tool_id, Sdk.EngineMessageType.warning, message
+            self._tool_id, Sdk.EngineMessageType.warning, str(message)
         )
 
     def info(self, message: str) -> None:
         """Display an info message in the results panel."""
-        self._engine.output_message(self._tool_id, Sdk.EngineMessageType.info, message)
+        self._engine.output_message(
+            self._tool_id, Sdk.EngineMessageType.info, str(message)
+        )
 
     @property
     def update_only_mode(self) -> bool:

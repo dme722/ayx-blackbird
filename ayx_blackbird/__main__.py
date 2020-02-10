@@ -8,12 +8,12 @@ import xmltodict
 
 name_to_tool = {
     "input": "BlackbirdInput",
-    "multiple-inout": "BlackbirdMultipleInOut",
-    "multiple-inputs": "BlakcbirdMultipleInputs",
+    "multiple-inputs": "BlackbirdMultipleInputs",
     "multiple-outputs": "BlackbirdMultipleOutputs",
     "optional": "BlackbirdOptional",
     "output": "BlackbirdOutput",
     "passthrough": "BlackbirdPassthrough",
+    "multianchor": "BlackbirdMultianchor",
 }
 
 
@@ -24,7 +24,7 @@ def main() -> None:
 
 
 @main.command()
-@click.option("--name", help="Name of the tool to create")
+@click.option("--name", help="Name of the tool to create", prompt="Tool Name: ")
 @click.option(
     "--tool_directory",
     default="tools",
@@ -41,6 +41,12 @@ def create_ayx_plugin(name: str, tool_directory: str, tool_type: str) -> None:
     """Create a new plugin plugin for Alteryx Designer."""
     click.echo("Creating Alteryx Plugin...")
 
+    try:
+        example_tool_name = name_to_tool[tool_type]
+    except KeyError:
+        click.echo("tool_type must be one of: " + ", ".join(name_to_tool.keys()))
+        return
+
     if not os.path.isdir(tool_directory):
         _setup_tool_dir(tool_directory)
 
@@ -51,7 +57,6 @@ def create_ayx_plugin(name: str, tool_directory: str, tool_type: str) -> None:
         )
         return
 
-    example_tool_name = name_to_tool[tool_type]
     _make_copy_of_example_tool(name, tool_directory, example_tool_name)
     _apply_name_change(name, example_tool_name, tool_directory)
 

@@ -1,11 +1,13 @@
 """Mock record info class definition."""
 from copy import deepcopy
-from typing import Generator, List, Optional
+from typing import Generator, List, Optional, TYPE_CHECKING
 
 from .alteryx_engine import AlteryxEngine
 from .constants import FieldType
-from .field import Field
 from .record_creator import RecordCreator
+
+if TYPE_CHECKING:
+    from .field import Field
 
 
 class RecordInfo:
@@ -13,7 +15,7 @@ class RecordInfo:
 
     def __init__(self, alteryx_engine: AlteryxEngine) -> None:
         """Construct a record info."""
-        self._fields: List[Field] = []
+        self._fields: List["Field"] = []
 
     def add_field(
         self,
@@ -23,11 +25,11 @@ class RecordInfo:
         scale: int = 0,
         source: str = "",
         description: str = "",
-    ) -> Field:
+    ) -> "Field":
         """Add a field to the record info."""
         pass
 
-    def add_field_from_xml(self, xml: str, name_prefix: str = "") -> Field:
+    def add_field_from_xml(self, xml: str, name_prefix: str = "") -> "Field":
         """Add a field from an XML string definition."""
         raise NotImplementedError()
 
@@ -35,10 +37,9 @@ class RecordInfo:
         """Make a copy of the record info."""
         return deepcopy(self)
 
-    @staticmethod
     def construct_record_creator(self) -> RecordCreator:
         """Create a new record creator."""
-        return RecordCreator()
+        return RecordCreator(self)
 
     def equal_types(
         self, record_info: "RecordInfo", allow_additional_fields: bool = False
@@ -55,7 +56,7 @@ class RecordInfo:
 
     def get_field_by_name(
         self, field_name: str, throw_error: bool = True
-    ) -> Optional[Field]:
+    ) -> Optional["Field"]:
         """Get a field object by field name."""
         for field in self:
             if field.name == field_name:
@@ -82,11 +83,11 @@ class RecordInfo:
         """Initialize this record info from an XML string."""
         pass
 
-    def rename_field_by_index(self, field_idx: int, new_name: str) -> Field:
+    def rename_field_by_index(self, field_idx: int, new_name: str) -> "Field":
         """Rename a field by index."""
         pass
 
-    def rename_field_by_name(self, old_name: str, new_name: str) -> Field:
+    def rename_field_by_name(self, old_name: str, new_name: str) -> "Field":
         """Rename a field by name."""
         pass
 
@@ -94,9 +95,10 @@ class RecordInfo:
         """Swap two field names."""
         pass
 
-    def __iter__(self) -> Generator[Field, None, None]:
+    def __iter__(self) -> Generator["Field", None, None]:
         """Iterate over fields in this record info."""
         yield from self._fields
 
     def __len__(self) -> int:
+        """Get the number of fields available."""
         return len(self._fields)

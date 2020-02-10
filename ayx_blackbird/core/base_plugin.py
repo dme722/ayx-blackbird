@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, NoReturn, Optional
 
 import AlteryxPythonSDK as Sdk
 
@@ -20,6 +20,7 @@ from ..config import ToolConfiguration, WorkflowConfiguration
 from ..mixins import AnchorUtilsMixin, ObservableMixin
 from ..proxies import EngineProxy
 from ..records import ParsedRecordContainer
+from ..utilities.exceptions import WorkflowRuntimeError
 
 
 class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
@@ -61,9 +62,14 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
 
     def pi_init(self, workflow_config_xml_string: str) -> None:
         """Plugin initialization from the engine."""
+        self.subscribe(
+            PluginEvents.PLUGIN_INITIALIZED,
+            self.callback_strategy.plugin_initialized_callback,
+        )
         self.input_anchors = self.tool_config.build_input_anchors()
         self.output_anchors = self.tool_config.build_output_anchors()
         self.workflow_config = WorkflowConfiguration(workflow_config_xml_string)
+        self.notify_topic(PluginEvents.PLUGIN_INITIALIZED)
 
     def pi_add_incoming_connection(
         self, anchor_name: str, connection_name: str
@@ -103,39 +109,28 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
         """Push all records when no inputs are connected."""
-        if len(self.required_input_anchors) == 0:
-            try:
-                success = self.initialize_plugin()
-                if success and not self.engine.update_only_mode:
-                    self.process_records()
+        try:
+            if len(self.required_input_anchors) == 0:
+                self.initialize_plugin()
+                if not self.engine.update_only_mode:
                     self.on_complete()
                 self.close_output_anchors()
 
-                return success
-            except Exception as e:
-                self.handle_plugin_error(e)
+                return True
 
-                return False
+            self.raise_missing_inputs()
+        except Exception as e:
+            self.handle_plugin_error(e)
 
-        self.engine.error(self.engine.xmsg("Missing Incoming Connection(s)."))
         return False
+
+    def raise_missing_inputs(self) -> NoReturn:
+        """Send a missing incoming inputs error to Designer."""
+        raise WorkflowRuntimeError(self.engine.xmsg("Missing Incoming Connection(s)."))
 
     def pi_close(self, b_has_errors: bool) -> None:
         """pi_close is useless. Never use it."""
         pass
-
-    def set_record_containers(self) -> None:
-        """Set the containers for each connection."""
-        for anchor in self.input_anchors:
-            for connection in anchor.connections:
-                if connection.record_info is None:
-                    raise RuntimeError(
-                        "Record info must be present before setting containers."
-                    )
-
-                connection.add_record_container(
-                    ParsedRecordContainer(connection.record_info)
-                )
 
     def configure_logger(self) -> None:
         """Configure the logger."""
@@ -144,13 +139,18 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     def handle_plugin_error(self, e: Exception) -> None:
         """Log a plugin error to the log and a generic error to Designer."""
         logger = self.logger
-        logger.exception(e)
-        self.engine.error(
-            self.engine.xmsg(
-                "Unexpected error occurred in plugin, "
-                f"please see log file: {self.log_filepath}"
+
+        if isinstance(e, WorkflowRuntimeError):
+            logger.error(str(e))
+            self.engine.error(str(e))
+        else:
+            logger.exception(e)
+            self.engine.error(
+                self.engine.xmsg(
+                    "Unexpected error occurred in plugin, "
+                    f"please see log file: {self.log_filepath}"
+                )
             )
-        )
         self.notify_topic(PluginEvents.PLUGIN_FAILURE, exception=e)
 
     @property
@@ -191,16 +191,21 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """Get the record batch size."""
         pass
 
-    def initialize_plugin(self) -> bool:
+    def initialize_plugin(self) -> None:
         """Initialize plugin."""
         pass
 
-    @abstractmethod
-    def process_records(self) -> None:
+    def initialize_connection(self, connection: ConnectionInterface) -> None:
+        """Initialize a connection."""
+        if connection.record_info is None:
+            raise RuntimeError("Record info must be present before setting containers.")
+
+        connection.add_record_container(ParsedRecordContainer(connection.record_info))
+
+    def process_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
         pass
 
-    @abstractmethod
     def on_complete(self) -> None:
-        """Finalize the plugin."""
+        """Close plugin code after all records have finished streaming."""
         pass

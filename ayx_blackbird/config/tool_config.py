@@ -23,7 +23,7 @@ class ToolConfiguration:
 
     def _get_tool_config(self) -> Dict[str, Any]:
         with open(str(self._get_tool_config_filepath())) as fd:
-            tool_config = dict(xmltodict.parse(fd.read()))
+            tool_config = dict(xmltodict.parse(fd.read(), strip_whitespace=False))
 
         return tool_config
 

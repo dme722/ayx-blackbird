@@ -25,15 +25,16 @@ class AlteryxEngine:
             "TempPath": "./temp_dir/",
             "UpdateMode": "",
             "UpdateOnly": "False",
-            "Version": "2020.1"
+            "Version": "2020.1",
         }
 
         self.tool_execution_info: Dict[int, ToolExecutionInfo] = {}
 
     @staticmethod
-    def create_temp_file_name(self, extension: str = "tmp", options: int = 0) -> str:
+    def create_temp_file_name(extension: str = "tmp", options: int = 0) -> str:
         """Create temp file."""
         import tempfile
+
         return tempfile.NamedTemporaryFile(suffix="." + extension).name
 
     def decrypt_password(self, encrypted_password: str, mode: int) -> str:
@@ -56,8 +57,10 @@ class AlteryxEngine:
             EngineMessageType.error: execution_info.add_error,
             EngineMessageType.warning: execution_info.add_warning,
             EngineMessageType.info: execution_info.add_info,
-            Status.update_output_config_xml: execution_info.set_output_workflow_xml
+            Status.update_output_config_xml: execution_info.set_output_workflow_xml,
         }[status](message)
+
+        return 0
 
     def output_tool_progress(self, tool_id: int, percent_progress: float) -> int:
         """Output tool progress."""

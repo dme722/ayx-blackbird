@@ -17,6 +17,13 @@ class ConnectionCallbackStrategy(ABC):
         """Construct a callback strategy."""
         self.plugin = plugin
 
+    def plugin_initialized_callback(self, **_: Any) -> None:
+        """Initialize plugin."""
+        try:
+            self.plugin.initialize_plugin()
+        except Exception as e:
+            self.plugin.handle_plugin_error(e)
+
     def update_progress_callback(self, **_: Any) -> None:
         """Update input progress percentage."""
         import numpy as np
@@ -37,7 +44,9 @@ class ConnectionCallbackStrategy(ABC):
             anchor.update_progress(percent)
 
     @abstractmethod
-    def connection_initialized_callback(self, **_: Any) -> None:
+    def connection_initialized_callback(
+        self, connection: ConnectionInterface, **_: Any
+    ) -> None:
         """Run callback for connection initialization."""
         pass
 
@@ -57,14 +66,18 @@ class ConnectionCallbackStrategy(ABC):
 class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for workflow runs."""
 
-    def connection_initialized_callback(self, **_: Any) -> None:
+    def connection_initialized_callback(
+        self, connection: ConnectionInterface, **_: Any
+    ) -> None:
         """Run callback for connection initialization."""
-        if self.plugin.all_connections_initialized and not self.plugin.failure_occurred:
-            try:
-                self.plugin.set_record_containers()
-                self.plugin.initialize_plugin()
-            except Exception as e:
-                self.plugin.handle_plugin_error(e)
+        try:
+            if not self.plugin.all_required_connections_connected:
+                self.plugin.raise_missing_inputs()
+
+            if not self.plugin.failure_occurred:
+                self.plugin.initialize_connection(connection)
+        except Exception as e:
+            self.plugin.handle_plugin_error(e)
 
     def record_received_callback(
         self, connection: ConnectionInterface, **_: Any
@@ -79,7 +92,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
             and not self.plugin.failure_occurred
         ):
             try:
-                self.plugin.process_records()
+                self.plugin.process_incoming_records(connection)
             except Exception as e:
                 self.plugin.handle_plugin_error(e)
 
@@ -87,7 +100,9 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
         """Process any remaining records and finalize."""
         if self.plugin.all_connections_closed and not self.plugin.failure_occurred:
             try:
-                self.plugin.process_records()
+                for anchor in self.plugin.input_anchors:
+                    for connection in anchor.connections:
+                        self.plugin.process_incoming_records(connection)
                 self.plugin.on_complete()
                 self.plugin.close_output_anchors()
             except Exception as e:
@@ -97,13 +112,21 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
 class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for update only runs."""
 
-    def connection_initialized_callback(self, **_: Any) -> None:
+    def connection_initialized_callback(
+        self, connection: ConnectionInterface, **_: Any
+    ) -> None:
         """Run callback for connection initialization."""
-        if self.plugin.all_connections_initialized and not self.plugin.failure_occurred:
-            try:
+        try:
+            if not self.plugin.all_required_connections_connected:
+                self.plugin.raise_missing_inputs()
+
+            if (
+                self.plugin.all_connections_initialized
+                and not self.plugin.failure_occurred
+            ):
                 self.plugin.initialize_plugin()
-            except Exception as e:
-                self.plugin.handle_plugin_error(e)
+        except Exception as e:
+            self.plugin.handle_plugin_error(e)
 
     def record_received_callback(
         self, connection: ConnectionInterface, **_: Any

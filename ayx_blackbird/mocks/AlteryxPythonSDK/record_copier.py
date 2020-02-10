@@ -1,9 +1,11 @@
 """Mock record copier class definition."""
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
-from .record_creator import RecordCreator
-from .record_info import RecordInfo
-from .record_ref import RecordRef
+
+if TYPE_CHECKING:
+    from .record_creator import RecordCreator
+    from .record_info import RecordInfo
+    from .record_ref import RecordRef
 
 
 class RecordCopier:
@@ -11,8 +13,8 @@ class RecordCopier:
 
     def __init__(
         self,
-        destination: RecordInfo,
-        source: RecordInfo,
+        destination: "RecordInfo",
+        source: "RecordInfo",
         suppress_size_only_conversion_errors: bool = False,
         decimal_separator: str = ".",
     ) -> None:
@@ -35,16 +37,16 @@ class RecordCopier:
         """Signal that fields are done being added."""
         self._done_adding = True
 
-    def copy(self, destination: RecordCreator, source: RecordRef) -> None:
+    def copy(self, destination: "RecordCreator", source: "RecordRef") -> None:
         """Copy a record to the destination format."""
         for source_idx, dest_idx in self._idx_map.items():
-            source_key = source.data.keys()[source_idx]
-            dest_key = destination.record_ref.data.keys()[dest_idx]
+            source_key = list(source.data.keys())[source_idx]
+            dest_key = list(destination.record_ref.data.keys())[dest_idx]
 
             destination.record_ref.data[dest_key] = source.data[source_key]
 
     @staticmethod
-    def set_dest_to_null(self, destination: RecordCreator) -> None:
+    def set_dest_to_null(destination: "RecordCreator") -> None:
         """Set destination to all null."""
         for key in destination.record_ref.data:
             destination.record_ref.data[key] = None

@@ -1,7 +1,11 @@
 """Mock field class definition."""
+from typing import TYPE_CHECKING
+
 from .constants import FieldType
-from .record_creator import RecordCreator
 from .record_ref import RecordRef
+
+if TYPE_CHECKING:
+    from .record_creator import RecordCreator
 
 
 class Field:
@@ -60,30 +64,30 @@ class Field:
         """Check if the value of a field is null."""
         return record_ref.get_field(self.name) is None
 
-    def set_from_bool(self, record_creator: RecordCreator, value: bool) -> None:
+    def set_from_bool(self, record_creator: "RecordCreator", value: bool) -> None:
         """Set value of a field as a boolean."""
         record_creator.set_field(self.name, bool(value))
 
-    def set_from_double(self, record_creator: RecordCreator, value: float) -> None:
+    def set_from_double(self, record_creator: "RecordCreator", value: float) -> None:
         """Set value of a field as a double."""
         record_creator.set_field(self.name, float(value))
 
-    def set_from_int32(self, record_creator: RecordCreator, value: int) -> None:
+    def set_from_int32(self, record_creator: "RecordCreator", value: int) -> None:
         """Set value of a field as an int32."""
         record_creator.set_field(self.name, int(value))
 
-    def set_from_int64(self, record_creator: RecordCreator, value: int) -> None:
+    def set_from_int64(self, record_creator: "RecordCreator", value: int) -> None:
         """Set value of a field as an int64."""
         record_creator.set_field(self.name, int(value))
 
-    def set_from_string(self, record_creator: RecordCreator, value: str) -> None:
+    def set_from_string(self, record_creator: "RecordCreator", value: str) -> None:
         """Set value of a field as a string."""
         record_creator.set_field(self.name, str(value))
 
-    def set_from_blob(self, record_creator: RecordCreator, value: bytes) -> None:
+    def set_from_blob(self, record_creator: "RecordCreator", value: bytes) -> None:
         """Set value of a field as a blob."""
         record_creator.set_field(self.name, bytes(value))
 
-    def set_null(self, record_creator: RecordCreator) -> None:
+    def set_null(self, record_creator: "RecordCreator") -> None:
         """Set value of a field to null."""
         record_creator.set_field(self.name, None)

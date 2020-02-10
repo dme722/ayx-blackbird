@@ -44,6 +44,13 @@ class AnchorUtilsMixin:
         ][0]
 
     @property
+    def all_required_connections_connected(self) -> bool:
+        """Getter for if all required connections are connected."""
+        return all(
+            [len(anchor.connections) > 0 for anchor in self.required_input_anchors]
+        )
+
+    @property
     def all_connections_initialized(self) -> bool:
         """Getter for if all input connections are initialized."""
         return all(

@@ -19,13 +19,13 @@ class AyxPlugin(BasePlugin):
 
     def initialize_plugin(self) -> bool:
         """Initialize plugin."""
-        self.output_anchor = self.get_output_anchor("Output")
         self.engine.info(self.engine.xmsg("Plugin initialized."))
 
     def initialize_connection(self, connection: ConnectionInterface) -> None:
         """Initialize a connection."""
         if self.output_anchor.record_info is None:
             self.output_anchor.record_info = connection.record_info
+            self.push_all_metadata()
 
         incoming_names = [field.name for field in connection.record_info]
         incoming_types = [field.type for field in connection.record_info]
@@ -35,7 +35,7 @@ class AyxPlugin(BasePlugin):
 
         if incoming_names != outgoing_names or incoming_types != outgoing_types:
             raise WorkflowRuntimeError(
-                "Incoming metadata must be the same for all anchors."
+                "Incoming metadata must be the same for all connections."
             )
 
     def process_incoming_records(self, connection: ConnectionInterface) -> None:

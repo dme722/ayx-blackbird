@@ -12,5 +12,5 @@ class WorkflowConfiguration(UserDict):
 
     def __init__(self, config_str: str):
         """Initialize a workflow configuration."""
-        self.data = xmltodict.parse(config_str)["Configuration"]
+        self.data = xmltodict.parse(config_str, strip_whitespace=False)["Configuration"]
         self.original_data = deepcopy(self.data)

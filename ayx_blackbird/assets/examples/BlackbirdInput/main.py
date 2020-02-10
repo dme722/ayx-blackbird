@@ -1,4 +1,6 @@
 """Example tool."""
+from typing import Any
+
 import AlteryxPythonSDK as Sdk
 
 from ayx_blackbird.core import BasePlugin
@@ -32,7 +34,7 @@ class AyxPlugin(BasePlugin):
         self.push_all_metadata()
         return True
 
-    def process_records(self) -> None:
+    def process_incoming_records(self, *_: Any) -> None:
         """Do nothing. Input tools don't process records (they create them)."""
         pass
 
