@@ -34,6 +34,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         "output_anchors",
         "workflow_config",
         "failure_occurred",
+        "initialized",
     ]
 
     def __init__(
@@ -59,13 +60,10 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         self.input_anchors: List[InputAnchor] = []
         self.output_anchors: List[OutputAnchor] = []
         self.workflow_config = WorkflowConfiguration("<Configuration/>")
+        self.initialized = False
 
     def pi_init(self, workflow_config_xml_string: str) -> None:
         """Plugin initialization from the engine."""
-        self.subscribe(
-            PluginEvents.PLUGIN_INITIALIZED,
-            self.callback_strategy.plugin_initialized_callback,
-        )
         self.input_anchors = self.tool_config.build_input_anchors()
         self.output_anchors = self.tool_config.build_output_anchors()
         self.workflow_config = WorkflowConfiguration(workflow_config_xml_string)
@@ -111,8 +109,9 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """Push all records when no inputs are connected."""
         try:
             if len(self.required_input_anchors) == 0:
-                self.initialize_plugin()
                 if not self.engine.update_only_mode:
+                    self.initialize_plugin()
+                    self.initialized = True
                     self.on_complete()
                 self.close_output_anchors()
 

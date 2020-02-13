@@ -17,13 +17,6 @@ class ConnectionCallbackStrategy(ABC):
         """Construct a callback strategy."""
         self.plugin = plugin
 
-    def plugin_initialized_callback(self, **_: Any) -> None:
-        """Initialize plugin."""
-        try:
-            self.plugin.initialize_plugin()
-        except Exception as e:
-            self.plugin.handle_plugin_error(e)
-
     def update_progress_callback(self, **_: Any) -> None:
         """Update input progress percentage."""
         import numpy as np
@@ -74,6 +67,10 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
             if not self.plugin.all_required_connections_connected:
                 self.plugin.raise_missing_inputs()
 
+            if not self.plugin.initialized:
+                self.plugin.initialize_plugin()
+                self.plugin.initialized = True
+
             if not self.plugin.failure_occurred:
                 self.plugin.initialize_connection(connection)
         except Exception as e:
@@ -120,11 +117,12 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
             if not self.plugin.all_required_connections_connected:
                 self.plugin.raise_missing_inputs()
 
-            if (
-                self.plugin.all_connections_initialized
-                and not self.plugin.failure_occurred
-            ):
+            if not self.plugin.initialized:
                 self.plugin.initialize_plugin()
+                self.plugin.initialized = True
+
+            if not self.plugin.failure_occurred:
+                self.plugin.initialize_connection(connection)
         except Exception as e:
             self.plugin.handle_plugin_error(e)
 
