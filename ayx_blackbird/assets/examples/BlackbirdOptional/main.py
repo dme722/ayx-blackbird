@@ -44,6 +44,7 @@ class AyxPlugin(BasePlugin):
         self.output_anchor_metadata = output_record_info
 
     def generate_metadata(self) -> None:
+        """Build and push outgoing metadata."""
         if self.output_anchor_metadata is None:
             output_record_info = self.engine.create_record_info()
         else:
