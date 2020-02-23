@@ -1,4 +1,6 @@
 """Example tool."""
+import AlteryxPythonSDK as Sdk
+
 from ayx_blackbird.core import BasePlugin, ConnectionInterface
 from ayx_blackbird.records import generate_records_from_df
 from ayx_blackbird.utilities.exceptions import WorkflowRuntimeError
@@ -6,6 +8,16 @@ from ayx_blackbird.utilities.exceptions import WorkflowRuntimeError
 
 class AyxPlugin(BasePlugin):
     """Concrete implementation of an AyxPlugin."""
+
+    def __init__(
+        self,
+        tool_id: int,
+        alteryx_engine: Sdk.AlteryxEngine,
+        output_anchor_mgr: Sdk.OutputAnchorManager,
+    ):
+        """Construct a plugin."""
+        super().__init__(tool_id, alteryx_engine, output_anchor_mgr)
+        self.output_anchor = None
 
     @property
     def tool_name(self) -> str:
@@ -24,8 +36,10 @@ class AyxPlugin(BasePlugin):
 
     def initialize_connection(self, connection: ConnectionInterface) -> None:
         """Initialize a connection."""
+        super().initialize_connection(connection)
         if self.output_anchor.record_info is None:
             self.output_anchor.record_info = connection.record_info
+            self.push_all_metadata()
 
         incoming_names = [field.name for field in connection.record_info]
         incoming_types = [field.type for field in connection.record_info]
@@ -46,7 +60,7 @@ class AyxPlugin(BasePlugin):
             generate_records_from_df(input_df, self.output_anchor.record_info)
         )
 
-        self.clear_all_input_records()
+        connection.clear_records()
 
     def on_complete(self) -> None:
         """Finalize the plugin."""

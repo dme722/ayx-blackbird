@@ -15,18 +15,18 @@ class AyxPlugin(BasePlugin):
         """Get the record batch size."""
         return 10000
 
-    def initialize_plugin(self) -> bool:
+    def initialize_plugin(self) -> None:
         """Initialize plugin."""
         self.engine.info(self.engine.xmsg("Plugin initialized."))
-        self.input_anchor = self.get_input_anchor("Input")
 
     def initialize_connection(self, connection: ConnectionInterface) -> None:
         """Initialize a connection."""
+        super().initialize_connection(connection)
 
     def process_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
         # Do nothing with records for now, this is an output tool
-        self.clear_all_input_records()
+        connection.clear_records()
 
     def on_complete(self) -> None:
         """Finalize the plugin."""

@@ -10,6 +10,16 @@ from ayx_blackbird.records import generate_records_from_df
 class AyxPlugin(BasePlugin):
     """Concrete implementation of an AyxPlugin."""
 
+    def __init__(
+        self,
+        tool_id: int,
+        alteryx_engine: Sdk.AlteryxEngine,
+        output_anchor_mgr: Sdk.OutputAnchorManager,
+    ):
+        """Construct a plugin."""
+        super().__init__(tool_id, alteryx_engine, output_anchor_mgr)
+        self.output_anchor = None
+
     @property
     def tool_name(self) -> str:
         """Get the tool name."""
@@ -20,9 +30,8 @@ class AyxPlugin(BasePlugin):
         """Get the record batch size."""
         return None
 
-    def initialize_plugin(self) -> bool:
+    def initialize_plugin(self) -> None:
         """Initialize plugin."""
-        self.engine.info(self.engine.xmsg("Plugin initialized."))
         self.output_anchor = self.get_output_anchor("Output")
 
         output_record_info = self.engine.create_record_info()
@@ -32,7 +41,7 @@ class AyxPlugin(BasePlugin):
 
         self.output_anchor.record_info = output_record_info
         self.push_all_metadata()
-        return True
+        self.engine.info(self.engine.xmsg("Plugin initialized."))
 
     def process_incoming_records(self, *_: Any) -> None:
         """Do nothing. Input tools don't process records (they create them)."""

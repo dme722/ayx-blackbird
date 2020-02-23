@@ -22,13 +22,6 @@ class AnchorUtilsMixin:
         for anchor in self.output_anchors:
             anchor.close()
 
-    def clear_all_input_records(self) -> None:
-        """Remove all accumulated input records from input anchor record containers."""
-        for anchor in self.input_anchors:
-            for connection in anchor.connections:
-                for container in connection.record_containers:
-                    container.clear_records()
-
     def get_input_anchor(self, input_anchor_name: str) -> InputAnchor:
         """Get an input anchor by name."""
         return [

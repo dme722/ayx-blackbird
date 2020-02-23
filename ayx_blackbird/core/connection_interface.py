@@ -48,6 +48,11 @@ class ConnectionInterface(ObservableMixin):
         """Add a new record container."""
         self.record_containers.append(container)
 
+    def clear_records(self) -> None:
+        """Clear all records for this connections containers."""
+        for container in self.record_containers:
+            container.clear_records()
+
     def plugin_initialization_callback(self, value: bool, **_: Any) -> None:
         """Set success of plugin initialization."""
         self.plugin_failed = not value

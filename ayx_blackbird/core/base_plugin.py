@@ -165,7 +165,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
     @property
     def logger(self) -> logging.Logger:
         """Get logger."""
-        return logging.getLogger(self.log_filepath)
+        return logging.getLogger(f"{self.tool_name}{self.tool_id}")
 
     @property
     def callback_strategy(self) -> ConnectionCallbackStrategy:
