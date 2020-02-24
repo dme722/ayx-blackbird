@@ -49,13 +49,17 @@ def create_ayx_plugin(name: str, tool_directory: str, tool_type: str) -> None:
 
     if not os.path.isdir(tool_directory):
         _setup_tool_dir(tool_directory)
+        click.echo(f"Created tool directory: {os.path.abspath(tool_directory)}")
 
-    if os.path.isdir(os.path.join(tool_directory, name)):
+    new_tool_directory = os.path.abspath(os.path.join(tool_directory, name))
+    if os.path.isdir(new_tool_directory):
         click.echo(
             f'Failed to create plugin: the plugin "{name}"'
             "already exists in {tool_directory}."
         )
         return
+
+    click.echo(f"Created new tool in directory: {new_tool_directory}")
 
     _make_copy_of_example_tool(name, tool_directory, example_tool_name)
     _apply_name_change(name, example_tool_name, tool_directory)
@@ -73,6 +77,10 @@ def _make_copy_of_example_tool(
     shutil.copytree(
         os.path.join(_get_install_dir(), "assets", "examples", example_tool_name),
         os.path.join(dest_dir, new_tool_name),
+    )
+    shutil.copy(
+        os.path.join(_get_install_dir(), "assets", "examples", "requirements.txt"),
+        os.path.join(dest_dir, new_tool_name, "requirements.txt"),
     )
 
 
@@ -118,23 +126,6 @@ def _update_name_in_config(config_filepath: str, name: str) -> None:
 
 
 @main.command()
-@click.option("--tool_path", help="Path to the tool you want to install.")
-@click.option(
-    "--create_venv",
-    default=True,
-    help="Create the virtual environment and install requirements.txt.",
-)
-@click.option(
-    "--admin",
-    default=False,
-    help="Create the virtual environment and install requirements.txt.",
-)
-def install(tool_path: str, create_venv: bool) -> None:
-    """Install tools from a path into Alteryx Designer."""
-    click.echo("TODO: Installing to Alteryx Designer...")
-
-
-@main.command()
 @click.option(
     "--tool_path", default="tools", help="Path to the tool you want to install."
 )
@@ -148,6 +139,8 @@ def create_yxi(tool_path: str, yxi_name: str, destination_dir: str) -> None:
     shutil.make_archive(yxi_path, "zip", tool_path)
 
     shutil.move(f"{yxi_path}.zip", f"{yxi_path}.yxi")
+
+    click.echo(f"Created YXI file at: {os.path.abspath(yxi_path)}.yxi")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,0 @@
-ayx_blackbird==1.0.0a2
-Click>=7.0
-numpy>=1.16.3
-pandas>=0.23.4
-xmltodict>=0.11.0

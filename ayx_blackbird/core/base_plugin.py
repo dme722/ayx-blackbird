@@ -75,7 +75,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """Add incoming connection to the tool from the engine."""
         anchor = [a for a in self.input_anchors if a.name == anchor_name][0]
 
-        connection = ConnectionInterface(self, connection_name)
+        connection = ConnectionInterface(self, connection_name, anchor)
         anchor.connections.append(connection)
         self._subscribe_to_connection(connection)
         return connection
@@ -150,6 +150,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
                     f"please see log file: {self.log_filepath}"
                 )
             )
+        self.failure_occurred = True
         self.notify_topic(PluginEvents.PLUGIN_FAILURE, exception=e)
 
     @property

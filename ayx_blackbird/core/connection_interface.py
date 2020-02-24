@@ -10,6 +10,7 @@ from ..utilities.constants import ConnectionStatus
 
 if TYPE_CHECKING:
     from .base_plugin import BasePlugin
+    from ..anchors import InputAnchor
 
 
 class ConnectionInterface(ObservableMixin):
@@ -22,9 +23,12 @@ class ConnectionInterface(ObservableMixin):
         "progress_percentage",
         "status",
         "plugin_failed",
+        "anchor",
     ]
 
-    def __init__(self, plugin: "BasePlugin", connection_name: str) -> None:
+    def __init__(
+        self, plugin: "BasePlugin", connection_name: str, anchor: "InputAnchor"
+    ) -> None:
         """Instantiate a connection interface."""
         super().__init__()
         self.name = connection_name
@@ -33,6 +37,7 @@ class ConnectionInterface(ObservableMixin):
         self.status = ConnectionStatus.CREATED
         self.plugin_failed = False
         self.record_containers: List[BaseRecordContainer] = []
+        self.anchor = anchor
 
         plugin.subscribe(
             PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
