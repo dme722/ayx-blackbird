@@ -9,5 +9,17 @@ install:
 
 script:
   - doit
-  - python sdist bdist_wheel
-  - twine upload dist/*
+
+
+jobs:
+  include:
+    - stage: Test
+      script:
+        - doit
+    - stage: Deploy
+      script:
+        - python setup.py sdist bdist_wheel
+        - twine upload dist/*
+      branches:
+        only:
+          - master
