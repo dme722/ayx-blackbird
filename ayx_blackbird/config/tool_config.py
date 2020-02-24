@@ -28,20 +28,25 @@ class ToolConfiguration:
         return tool_config
 
     def get_tool_config_filepath(self) -> Path:
+        """Get the path to the tool configuration file."""
         return Path(
             os.path.join(str(self.get_tool_path()), f"{self.tool_name}Config.xml")
         )
 
     def get_tool_path(self) -> Path:
+        """Get the path to the directory containing the current tool's definition."""
         return Path(os.path.join(str(self.get_tools_location()), self.tool_name))
 
-    @staticmethod
-    def get_tools_location() -> Path:
-        # TODO: Determine if user or admin
-        # admin_path = os.path.join(os.environ["ALLUSERSPROFILE"], "Alteryx", "Tools")
-        user_path = os.path.join(os.environ["APPDATA"], "Alteryx", "Tools")
+    def get_tools_location(self) -> Path:
+        """Get the location of Alteryx tools that contain the current tool."""
+        tools_rel_path = os.path.join("Alteryx", "Tools")
+        admin_path = os.path.join(os.environ["ALLUSERSPROFILE"], tools_rel_path)
+        user_path = os.path.join(os.environ["APPDATA"], tools_rel_path)
 
-        return Path(user_path)
+        if self.tool_name in os.listdir(user_path):
+            return Path(user_path)
+
+        return Path(admin_path)
 
     def build_input_anchors(self) -> List[InputAnchor]:
         """Build the input anchors based on tool config settings."""

@@ -141,4 +141,3 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
                     self.plugin.close_output_anchors()
                 except Exception as e:
                     self.plugin.handle_plugin_error(e)
-

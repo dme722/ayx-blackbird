@@ -45,17 +45,18 @@ def task_flake8():
 
 def task_pydocstyle():
     for directory in python_directories:
-        yield {
-            "name": directory,
-            "actions": [f"pydocstyle --convention=numpy {directory}"],
-            "file_dep": list_files(directory),
-        }
+        if directory != "tests":
+            yield {
+                "name": directory,
+                "actions": [f"pydocstyle --convention=numpy {directory}"],
+                "file_dep": list_files(directory),
+            }
 
 
 def task_mypy():
     return {
         "actions": [f"mypy ayx_blackbird"],
-        "file_dep": list_files("ayx_blackbird") + ["mypy.ini"],
+        "file_dep": list_files("ayx_blackbird") + ["setup.cfg"],
     }
 
 
