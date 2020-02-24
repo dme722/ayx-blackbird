@@ -21,9 +21,16 @@ setup(
     """,
     package_data={
         "ayx_blackbird": [
-            "assets/base_tool_config/*",
             "assets/*",
-            "examples/BlackbirdPassthrough/*"
+            "assets/base_tool_config/*",
+            "assets/examples/*",
+            "assets/examples/BlackbirdPassthrough/*",
+            "assets/examples/BlackbirdInput/*",
+            "assets/examples/BlackbirdMultianchor/*",
+            "assets/examples/BlackbirdMultipleInputs/*",
+            "assets/examples/BlackbirdMultipleOutputs/*",
+            "assets/examples/BlackbirdOptional/*",
+            "assets/examples/BlackbirdOutput/*",
         ]
     }
 )

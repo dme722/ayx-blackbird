@@ -1,4 +1,4 @@
-ayx_blackbird==1.0.0a2
+ayx_blackbird==1.0.0a3
 Click>=7.0
 numpy>=1.16.3
 pandas>=0.23.4
