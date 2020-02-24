@@ -109,9 +109,9 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         """Push all records when no inputs are connected."""
         try:
             if len(self.required_input_anchors) == 0:
+                self.initialize_plugin()
+                self.initialized = True
                 if not self.engine.update_only_mode:
-                    self.initialize_plugin()
-                    self.initialized = True
                     self.on_complete()
                 self.close_output_anchors()
 

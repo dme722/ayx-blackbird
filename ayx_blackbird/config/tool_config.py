@@ -22,21 +22,21 @@ class ToolConfiguration:
         self._output_anchor_mgr = output_anchor_mgr
 
     def _get_tool_config(self) -> Dict[str, Any]:
-        with open(str(self._get_tool_config_filepath())) as fd:
+        with open(str(self.get_tool_config_filepath())) as fd:
             tool_config = dict(xmltodict.parse(fd.read(), strip_whitespace=False))
 
         return tool_config
 
-    def _get_tool_config_filepath(self) -> Path:
+    def get_tool_config_filepath(self) -> Path:
         return Path(
-            os.path.join(str(self._get_tool_path()), f"{self.tool_name}Config.xml")
+            os.path.join(str(self.get_tool_path()), f"{self.tool_name}Config.xml")
         )
 
-    def _get_tool_path(self) -> Path:
-        return Path(os.path.join(str(self._get_tools_location()), self.tool_name))
+    def get_tool_path(self) -> Path:
+        return Path(os.path.join(str(self.get_tools_location()), self.tool_name))
 
     @staticmethod
-    def _get_tools_location() -> Path:
+    def get_tools_location() -> Path:
         # TODO: Determine if user or admin
         # admin_path = os.path.join(os.environ["ALLUSERSPROFILE"], "Alteryx", "Tools")
         user_path = os.path.join(os.environ["APPDATA"], "Alteryx", "Tools")
