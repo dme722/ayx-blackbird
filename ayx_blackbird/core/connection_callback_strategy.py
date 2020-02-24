@@ -1,5 +1,4 @@
 """Connection callback strategy definitions."""
-import logging
 from abc import ABC, abstractmethod
 from typing import Any, TYPE_CHECKING
 
@@ -107,8 +106,6 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
                 except Exception as e:
                     self.plugin.handle_plugin_error(e)
 
-            logging.shutdown()
-
 
 class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
     """Callback strategy for update only runs."""
@@ -145,4 +142,3 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
                 except Exception as e:
                     self.plugin.handle_plugin_error(e)
 
-            logging.shutdown()

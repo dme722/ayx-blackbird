@@ -114,7 +114,6 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
                 if not self.engine.update_only_mode:
                     self.on_complete()
                 self.close_output_anchors()
-                logging.shutdown()
                 return True
 
             self.raise_missing_inputs()
