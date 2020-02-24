@@ -1,25 +1,14 @@
-# After changing this file, check it on:
-#   http://lint.travis-ci.org/
 language: python
 python:
-  - "3.6"
-
+- '3.6'
 install:
-  - pip install -r requirements-dev.txt
-
+- pip install -r requirements-dev.txt
 script:
-  - doit
-
-
-jobs:
-  include:
-    - stage: Test
-      script:
-        - doit
-    - stage: Deploy
-      script:
-        - python setup.py sdist bdist_wheel
-        - twine upload dist/*
-      branches:
-        only:
-          - master
+- doit
+- python setup.py sdist bdist_wheel
+- twine upload dist/*
+deploy:
+  provider: pypi
+  user: "__token__"
+  password:
+    secure: gjp2krri/i5vjRVQyi3sQ2GQmwFddgYbeTKPXiEnTBj2gUwUTlU860HpgDk2634Cyr2CvQIqFVpMhtjIjRSYslHucAsBwFA/dUMwCuyvu+aSVDn77/kUmlS8cNlJ88UxAb1sK1keJ8H6x6DFzFfzQ7T1t3tXOG5BqJsPv8uNqKul6QIKR/+pOTaIv9SvKjmvI+OjFtz45n7O87QO6zeu63X+Gjt8v5POymIesyXCI/SI60xfJwcKlXpwEUoKQav4kp8kJMFsgRsVuGrJKbDYLq9KoEFrU03bNP8dNk/R7QxOr8W4r7iokx/nrJsgE7IVDwlGUQyrLudUbPbIA39229KnD1e/nti1GSuOLnuj27dJkA6J5h20RM24fOlk5Ws8qxcfNzCD0FHf+/w9axcsWGUTWFh6S/R8VWAc2M1jH4E0d4K2WofBRSERz36UscbpXZKXo5+rjCg76Nu22xSDOe3EeKaRErUwb7typwIdZL/iV/XdCVoDrH4YbrefyUThFvJAw/TuBUGsXXhI5h99KUsVteSz3qgswro8nvoT3QQv7ftdsU1M8m4KcdauCL9piQRO/lmqCjyqAE7IZBzKeYXfISghwd86TrL3mRBzPMU1hxgVruwyIMoAAuA3RURhnTgDSDEvzwzKYESJ1t2rtnESpmXALLjVCbP2hCObNOs=
