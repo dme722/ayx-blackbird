@@ -114,7 +114,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
                 if not self.engine.update_only_mode:
                     self.on_complete()
                 self.close_output_anchors()
-
+                logging.shutdown()
                 return True
 
             self.raise_missing_inputs()
@@ -133,7 +133,11 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
 
     def configure_logger(self) -> None:
         """Configure the logger."""
-        logging.basicConfig(filename=self.log_filepath, level=logging.DEBUG)
+        handler = logging.FileHandler(self.log_filepath)
+        formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        self.logger.setLevel(logging.DEBUG)
 
     def handle_plugin_error(self, e: Exception) -> None:
         """Log a plugin error to the log and a generic error to Designer."""

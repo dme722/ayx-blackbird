@@ -1,4 +1,5 @@
 """Connection callback strategy definitions."""
+import logging
 from abc import ABC, abstractmethod
 from typing import Any, TYPE_CHECKING
 
@@ -95,15 +96,18 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
 
     def connection_closed_callback(self, **_: Any) -> None:
         """Process any remaining records and finalize."""
-        if self.plugin.all_connections_closed and not self.plugin.failure_occurred:
-            try:
-                for anchor in self.plugin.input_anchors:
-                    for connection in anchor.connections:
-                        self.plugin.process_incoming_records(connection)
-                self.plugin.on_complete()
-                self.plugin.close_output_anchors()
-            except Exception as e:
-                self.plugin.handle_plugin_error(e)
+        if self.plugin.all_connections_closed:
+            if not self.plugin.failure_occurred:
+                try:
+                    for anchor in self.plugin.input_anchors:
+                        for connection in anchor.connections:
+                            self.plugin.process_incoming_records(connection)
+                    self.plugin.on_complete()
+                    self.plugin.close_output_anchors()
+                except Exception as e:
+                    self.plugin.handle_plugin_error(e)
+
+            logging.shutdown()
 
 
 class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
@@ -134,8 +138,11 @@ class UpdateOnlyConnectionCallbackStrategy(ConnectionCallbackStrategy):
 
     def connection_closed_callback(self, **_: Any) -> None:
         """Close all anchors."""
-        if self.plugin.all_connections_closed and not self.plugin.failure_occurred:
-            try:
-                self.plugin.close_output_anchors()
-            except Exception as e:
-                self.plugin.handle_plugin_error(e)
+        if self.plugin.all_connections_closed:
+            if not self.plugin.failure_occurred:
+                try:
+                    self.plugin.close_output_anchors()
+                except Exception as e:
+                    self.plugin.handle_plugin_error(e)
+
+            logging.shutdown()
