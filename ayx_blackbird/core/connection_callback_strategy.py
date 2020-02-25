@@ -89,7 +89,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
             and not self.plugin.failure_occurred
         ):
             try:
-                self.plugin.process_incoming_records(connection)
+                self.plugin.on_incoming_records(connection)
             except Exception as e:
                 self.plugin.handle_plugin_error(e)
 
@@ -100,7 +100,7 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
                 try:
                     for anchor in self.plugin.input_anchors:
                         for connection in anchor.connections:
-                            self.plugin.process_incoming_records(connection)
+                            self.plugin.on_incoming_records(connection)
                     self.plugin.on_complete()
                     self.plugin.close_output_anchors()
                 except Exception as e:

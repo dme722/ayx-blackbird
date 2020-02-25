@@ -23,7 +23,7 @@ class AyxPlugin(BasePlugin):
         """Initialize a connection."""
         super().initialize_connection(connection)
 
-    def process_incoming_records(self, connection: ConnectionInterface) -> None:
+    def on_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
         # Do nothing with records for now, this is an output tool
         connection.clear_records()

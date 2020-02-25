@@ -57,7 +57,7 @@ class AyxPlugin(BasePlugin):
             self.output_anchor.record_info = self.output_anchor_metadata
             self.push_all_metadata()
 
-    def process_incoming_records(self, connection: ConnectionInterface) -> None:
+    def on_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
         self.generate_metadata()
 

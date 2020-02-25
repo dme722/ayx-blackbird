@@ -52,7 +52,7 @@ class AyxPlugin(BasePlugin):
                 "Incoming metadata must be the same for all anchors."
             )
 
-    def process_incoming_records(self, connection: ConnectionInterface) -> None:
+    def on_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
         input_df = connection.record_containers[0].build_dataframe()
 

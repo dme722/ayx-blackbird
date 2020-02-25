@@ -43,7 +43,7 @@ class AyxPlugin(BasePlugin):
         self.push_all_metadata()
         self.engine.info(self.engine.xmsg("Plugin initialized."))
 
-    def process_incoming_records(self, *_: Any) -> None:
+    def on_incoming_records(self, *_: Any) -> None:
         """Do nothing. Input tools don't process records (they create them)."""
         pass
 

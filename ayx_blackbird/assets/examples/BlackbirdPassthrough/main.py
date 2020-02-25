@@ -39,7 +39,7 @@ class AyxPlugin(BasePlugin):
         self.output_anchor.record_info = connection.record_info.clone()
         self.push_all_metadata()
 
-    def process_incoming_records(self, connection: ConnectionInterface) -> None:
+    def on_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
         input_df = connection.record_containers[0].build_dataframe()
         self.output_anchor.push_records(

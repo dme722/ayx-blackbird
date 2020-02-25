@@ -205,7 +205,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
 
         connection.add_record_container(ParsedRecordContainer(connection.record_info))
 
-    def process_incoming_records(self, connection: ConnectionInterface) -> None:
+    def on_incoming_records(self, connection: ConnectionInterface) -> None:
         """Process records in batches."""
         pass
 
