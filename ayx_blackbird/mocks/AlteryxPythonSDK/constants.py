@@ -17,3 +17,21 @@ class EngineMessageType:
 
 class FieldType:
     """SDK field types."""
+
+    blob = "blob"
+    byte = "byte"
+    int16 = "int16"
+    int32 = "int32"
+    int64 = "int64"
+    float = "float"
+    double = "double"
+    date = "date"
+    time = "time"
+    datetime = "datetime"
+    bool = "bool"
+    string = "string"
+    v_string = "v_string"
+    v_wstring = "v_wstring"
+    wstring = "wstring"
+    fixeddecimal = "fixeddecimal"
+    spatialobj = "spatialobj"

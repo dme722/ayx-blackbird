@@ -6,8 +6,7 @@ from .alteryx_engine import AlteryxEngine
 from .constants import FieldType
 from .record_creator import RecordCreator
 
-if TYPE_CHECKING:
-    from .field import Field
+from .field import Field
 
 
 class RecordInfo:
@@ -16,6 +15,7 @@ class RecordInfo:
     def __init__(self, alteryx_engine: AlteryxEngine) -> None:
         """Construct a record info."""
         self._fields: List["Field"] = []
+        self.alteryx_engine = alteryx_engine
 
     def add_field(
         self,
@@ -27,7 +27,18 @@ class RecordInfo:
         description: str = "",
     ) -> "Field":
         """Add a field to the record info."""
-        pass
+        self._fields.append(
+            Field(
+                name=field_name,
+                type=field_type,
+                size=size,
+                scale=scale,
+                source=source,
+                description=description,
+            )
+        )
+
+        return self._fields[-1]
 
     def add_field_from_xml(self, xml: str, name_prefix: str = "") -> "Field":
         """Add a field from an XML string definition."""
@@ -69,31 +80,31 @@ class RecordInfo:
 
     def get_field_num(self, field_name: str, throw_error: bool = True) -> int:
         """Get the index of a field by name."""
-        pass
+        raise NotImplementedError()
 
     def get_hash(self) -> int:
         """Get hash of this record info."""
-        pass
+        raise NotImplementedError()
 
     def get_record_xml_meta_data(self, include_source: bool = True) -> str:
         """Get XML metadata string."""
-        pass
+        raise NotImplementedError()
 
     def init_from_xml(self, xml: str, name_prefix: str = "") -> None:
         """Initialize this record info from an XML string."""
-        pass
+        raise NotImplementedError()
 
     def rename_field_by_index(self, field_idx: int, new_name: str) -> "Field":
         """Rename a field by index."""
-        pass
+        raise NotImplementedError()
 
     def rename_field_by_name(self, old_name: str, new_name: str) -> "Field":
         """Rename a field by name."""
-        pass
+        raise NotImplementedError()
 
     def swap_field_names(self, field_1: int, field_2: int) -> None:
         """Swap two field names."""
-        pass
+        raise NotImplementedError()
 
     def __iter__(self) -> Generator["Field", None, None]:
         """Iterate over fields in this record info."""

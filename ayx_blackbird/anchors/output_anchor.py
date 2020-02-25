@@ -63,6 +63,8 @@ class OutputAnchor:
             self._engine_anchor_ref.init(self.record_info)
             self._metadata_pushed = True
             self.push_records = self._push_records
+        else:
+            raise RuntimeError("Metadata is trying to be pushed a second time.")
 
     def _raise_metadata_error(self, _: Iterable[Sdk.RecordCreator]) -> None:
         """Push records out."""

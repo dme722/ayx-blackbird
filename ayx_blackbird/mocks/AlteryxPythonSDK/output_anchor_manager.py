@@ -13,4 +13,4 @@ class OutputAnchorManager:
 
     def get_output_anchor(self, output_connection_name: str) -> "OutputAnchor":
         """Get an output anchor by name."""
-        return self._output_anchor_map[output_connection_name]
+        return self._output_anchor_map.get(output_connection_name)
