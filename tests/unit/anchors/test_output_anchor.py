@@ -1,24 +1,11 @@
-import pandas as pd
-
-import pytest
+import AlteryxPythonSDK as Sdk
 
 from ayx_blackbird.anchors import OutputAnchor
 from ayx_blackbird.records import generate_records_from_df
 
-import AlteryxPythonSDK as Sdk
+import pandas as pd
 
-
-@pytest.fixture
-def output_anchor_map():
-    return {
-        "test_anchor1": Sdk.OutputAnchor(),
-        "test_anchor2": Sdk.OutputAnchor(),
-    }
-
-
-@pytest.fixture
-def output_anchor_mgr(output_anchor_map):
-    return Sdk.OutputAnchorManager(output_anchor_map)
+import pytest
 
 
 @pytest.fixture
@@ -75,7 +62,9 @@ def test_record_info_setter(output_anchor, output_record_info):
         output_anchor.record_info = output_record_info
 
 
-def test_output_anchor_push_metadata(output_anchor_map, output_anchor_mgr, output_record_info):
+def test_output_anchor_push_metadata(
+    output_anchor_map, output_anchor_mgr, output_record_info
+):
     anchor_name = list(output_anchor_map.keys())[0]
     output_anchor = OutputAnchor(
         name=anchor_name, optional=False, output_anchor_mgr=output_anchor_mgr
@@ -118,7 +107,9 @@ def test_output_anchor_close(output_anchor_map, output_anchor_mgr):
     assert output_anchor_map[anchor_name].is_closed
 
 
-def test_output_push_records(output_anchor_map, output_anchor_mgr, output_record_info, output_records):
+def test_output_push_records(
+    output_anchor_map, output_anchor_mgr, output_record_info, output_records
+):
     anchor_name = list(output_anchor_map.keys())[0]
     output_anchor = OutputAnchor(
         name=anchor_name, optional=False, output_anchor_mgr=output_anchor_mgr
@@ -131,4 +122,3 @@ def test_output_push_records(output_anchor_map, output_anchor_mgr, output_record
 
     output_anchor.push_metadata()
     output_anchor.push_records(output_records)
-

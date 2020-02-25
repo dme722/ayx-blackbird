@@ -76,8 +76,11 @@ class RawRecordContainer(BaseRecordContainer):
 
         for record, (_, row) in zip(self.records, df.iterrows()):
             for column_name in list(df):
-                field = self._storage_record_info.get_field_by_name(column_name)
-                if field is None:
+                try:
+                    field = self._storage_record_info.get_field_by_name(column_name)
+                    if field is None:
+                        raise Exception()
+                except Exception:
                     raise RuntimeError(
                         f"Couldn't update field '{column_name}' that does not exist"
                     )

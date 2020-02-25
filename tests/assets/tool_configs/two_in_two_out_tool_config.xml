@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="main.py" SDKVersion="10.1" />
+  <GuiSettings Html="index.html" Icon="icon.png" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input1" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+      <Connection Name="Input2" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output1" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+      <Connection Name="Output2" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Blackbird Multi InOut</Name>
+      <Description>Blackbird Multi InOut</Description>
+      <ToolVersion>1.0</ToolVersion>
+      <CategoryName>SDK Examples</CategoryName>
+      <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>
+      <Author>Drew Ellison</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2020</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

@@ -19,3 +19,9 @@ class RecordRef:
     def get_field(self, name: str) -> Any:
         """Get the value of a field."""
         return self.data[name]
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, RecordRef):
+            return NotImplemented
+
+        return self.data == other.data

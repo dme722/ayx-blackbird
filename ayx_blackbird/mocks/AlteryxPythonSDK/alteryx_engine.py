@@ -1,5 +1,6 @@
 """Mock alteryx engine class definition."""
-from typing import Dict
+from collections import defaultdict
+from typing import DefaultDict, Dict, Iterable
 
 from .constants import EngineMessageType, Status
 from .tool_execution_info import ToolExecutionInfo
@@ -28,7 +29,9 @@ class AlteryxEngine:
             "Version": "2020.1",
         }
 
-        self.tool_execution_info: Dict[int, ToolExecutionInfo] = {}
+        self.tool_execution_info: DefaultDict[int, ToolExecutionInfo] = defaultdict(
+            ToolExecutionInfo
+        )
 
     @staticmethod
     def create_temp_file_name(extension: str = "tmp", options: int = 0) -> str:
@@ -62,9 +65,9 @@ class AlteryxEngine:
 
         return 0
 
-    def output_tool_progress(self, tool_id: int, percent_progress: float) -> int:
+    def output_tool_progress(self, tool_id: int, percent_progress: float) -> None:
         """Output tool progress."""
-        pass
+        self.tool_execution_info[tool_id].progress = percent_progress
 
     def pre_sort(
         self,
@@ -74,3 +77,6 @@ class AlteryxEngine:
     ) -> None:
         """Presort records."""
         raise NotImplementedError()
+
+    def xmsg(self, msg: str, *args: Iterable[str]) -> str:
+        return msg

@@ -3,6 +3,7 @@ from typing import List
 
 from ..anchors import InputAnchor, OutputAnchor
 from ..utilities.constants import ConnectionStatus
+from ..utilities.exceptions import AnchorNotFoundException
 
 
 class AnchorUtilsMixin:
@@ -24,17 +25,25 @@ class AnchorUtilsMixin:
 
     def get_input_anchor(self, input_anchor_name: str) -> InputAnchor:
         """Get an input anchor by name."""
-        return [
-            anchor for anchor in self.input_anchors if anchor.name == input_anchor_name
-        ][0]
+        try:
+            return [
+                anchor
+                for anchor in self.input_anchors
+                if anchor.name == input_anchor_name
+            ][0]
+        except IndexError:
+            raise AnchorNotFoundException(f"{input_anchor_name} not found.")
 
     def get_output_anchor(self, output_anchor_name: str) -> OutputAnchor:
         """Get an output anchor by name."""
-        return [
-            anchor
-            for anchor in self.output_anchors
-            if anchor.name == output_anchor_name
-        ][0]
+        try:
+            return [
+                anchor
+                for anchor in self.output_anchors
+                if anchor.name == output_anchor_name
+            ][0]
+        except IndexError:
+            raise AnchorNotFoundException(f"{output_anchor_name} not found.")
 
     @property
     def all_required_connections_connected(self) -> bool:

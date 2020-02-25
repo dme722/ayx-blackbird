@@ -1,11 +1,21 @@
 """Mock field class definition."""
-from typing import TYPE_CHECKING
+from typing import Any, Callable, Iterable, Mapping, TYPE_CHECKING
 
 from .constants import FieldType
 from .record_ref import RecordRef
 
 if TYPE_CHECKING:
     from .record_creator import RecordCreator
+
+
+def _return_none_on_type_error(func: Callable) -> Callable:
+    def inner(*args: Iterable, **kwargs: Mapping) -> Any:
+        try:
+            return func(*args, **kwargs)
+        except TypeError:
+            return None
+
+    return inner
 
 
 class Field:
@@ -36,26 +46,32 @@ class Field:
             and self.scale == other_field.scale
         )
 
+    @_return_none_on_type_error
     def get_as_bool(self, record_ref: RecordRef) -> bool:
         """Get value of field as a boolean."""
         return bool(record_ref.get_field(self.name))
 
+    @_return_none_on_type_error
     def get_as_double(self, record_ref: RecordRef) -> float:
         """Get value of a field as a double."""
         return float(record_ref.get_field(self.name))
 
+    @_return_none_on_type_error
     def get_as_int32(self, record_ref: RecordRef) -> int:
         """Get value of a field as an int32."""
         return int(record_ref.get_field(self.name))
 
+    @_return_none_on_type_error
     def get_as_int64(self, record_ref: RecordRef) -> int:
         """Get value of a field as an int64."""
         return int(record_ref.get_field(self.name))
 
+    @_return_none_on_type_error
     def get_as_string(self, record_ref: RecordRef) -> str:
         """Get value of a field as a string."""
         return str(record_ref.get_field(self.name))
 
+    @_return_none_on_type_error
     def get_as_blob(self, record_ref: RecordRef) -> bytes:
         """Get value of a field as a blob."""
         return bytes(record_ref.get_field(self.name))

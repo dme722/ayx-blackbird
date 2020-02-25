@@ -1,12 +1,11 @@
 """Mock record info class definition."""
 from copy import deepcopy
-from typing import Generator, List, Optional, TYPE_CHECKING
+from typing import Generator, List, Optional
 
 from .alteryx_engine import AlteryxEngine
 from .constants import FieldType
-from .record_creator import RecordCreator
-
 from .field import Field
+from .record_creator import RecordCreator
 
 
 class RecordInfo:
@@ -14,7 +13,7 @@ class RecordInfo:
 
     def __init__(self, alteryx_engine: AlteryxEngine) -> None:
         """Construct a record info."""
-        self._fields: List["Field"] = []
+        self.fields: List["Field"] = []
         self.alteryx_engine = alteryx_engine
 
     def add_field(
@@ -27,7 +26,7 @@ class RecordInfo:
         description: str = "",
     ) -> "Field":
         """Add a field to the record info."""
-        self._fields.append(
+        self.fields.append(
             Field(
                 name=field_name,
                 type=field_type,
@@ -38,7 +37,7 @@ class RecordInfo:
             )
         )
 
-        return self._fields[-1]
+        return self.fields[-1]
 
     def add_field_from_xml(self, xml: str, name_prefix: str = "") -> "Field":
         """Add a field from an XML string definition."""
@@ -80,7 +79,14 @@ class RecordInfo:
 
     def get_field_num(self, field_name: str, throw_error: bool = True) -> int:
         """Get the index of a field by name."""
-        raise NotImplementedError()
+        for idx, field in enumerate(self.fields):
+            if field.name == field_name:
+                return idx
+
+        if throw_error:
+            raise RuntimeError()
+
+        return -1
 
     def get_hash(self) -> int:
         """Get hash of this record info."""
@@ -108,8 +114,8 @@ class RecordInfo:
 
     def __iter__(self) -> Generator["Field", None, None]:
         """Iterate over fields in this record info."""
-        yield from self._fields
+        yield from self.fields
 
     def __len__(self) -> int:
         """Get the number of fields available."""
-        return len(self._fields)
+        return len(self.fields)

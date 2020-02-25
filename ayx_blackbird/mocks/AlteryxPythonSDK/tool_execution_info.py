@@ -11,6 +11,7 @@ class ToolExecutionInfo:
         self.warnings: List[str] = []
         self.infos: List[str] = []
         self.output_workflow_xml: Optional[str] = None
+        self.progress: float = 0.0
 
     def add_error(self, error: str) -> None:
         """Add an error message to the info."""
