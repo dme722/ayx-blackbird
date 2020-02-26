@@ -1,6 +1,7 @@
 # ayx-blackbird: Build fast tools, fast.
 
 [![Build Status](https://travis-ci.com/dme722/ayx-blackbird.svg?branch=master)](https://travis-ci.com/dme722/ayx-blackbird)
+[![codecov](https://codecov.io/gh/dme722/ayx-blackbird/branch/master/graphs/badge.svg)](https://codecov.io/gh/dme722/ayx-blackbird)
 
 ![alt text](blackbird.jpg "Logo Title Text 1")
 
