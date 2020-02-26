@@ -3,33 +3,10 @@ from pathlib import Path
 
 from ayx_blackbird.config import ToolConfiguration
 
-import pytest
-
 cur_dir = os.path.abspath(os.path.dirname(__file__))
 assets_dir = os.path.abspath(os.path.join(cur_dir, "..", "..", "assets"))
 example_tool_dir = os.path.abspath(os.path.join(assets_dir, "mock_tool_location"))
 no_tools_dir = os.path.abspath(os.path.join(assets_dir, "mock_tool_location_no_tools"))
-
-
-@pytest.fixture
-def tool_config_location_patch(monkeypatch):
-    def patch(filename):
-        monkeypatch.setattr(
-            ToolConfiguration,
-            "get_tool_config_filepath",
-            lambda *args: os.path.abspath(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "..",
-                    "..",
-                    "assets",
-                    "tool_configs",
-                    filename,
-                )
-            ),
-        )
-
-    return patch
 
 
 def test_tool_config_construction(monkeypatch, output_anchor_mgr):
