@@ -39,9 +39,6 @@ class ConnectionInterface(ObservableMixin):
         self.record_containers: List[BaseRecordContainer] = []
         self.anchor = anchor
 
-        plugin.subscribe(
-            PluginEvents.PLUGIN_INITIALIZED, self.plugin_initialization_callback
-        )
         plugin.subscribe(PluginEvents.PLUGIN_FAILURE, self.plugin_failure_callback)
 
     @property
@@ -57,10 +54,6 @@ class ConnectionInterface(ObservableMixin):
         """Clear all records for this connections containers."""
         for container in self.record_containers:
             container.clear_records()
-
-    def plugin_initialization_callback(self, value: bool, **_: Any) -> None:
-        """Set success of plugin initialization."""
-        self.plugin_failed = not value
 
     def plugin_failure_callback(self, **_: Any) -> None:
         """Set failed status from plugin."""
