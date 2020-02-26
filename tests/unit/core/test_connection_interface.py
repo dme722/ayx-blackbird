@@ -29,9 +29,7 @@ def connection_interface() -> ConnectionInterface:
     anchor = InputAnchor("Input", False)
 
     return ConnectionInterface(
-        plugin=MockPlugin(),
-        connection_name=connection_name,
-        anchor=anchor
+        plugin=MockPlugin(), connection_name=connection_name, anchor=anchor
     )
 
 
@@ -54,27 +52,35 @@ def record_collection():
     return record_info, records
 
 
-def test_connection_interface_ii_init(connection_interface: ConnectionInterface, record_collection):
+def test_connection_interface_ii_init(
+    connection_interface: ConnectionInterface, record_collection
+):
     record_info = record_collection[0]
 
     assert connection_interface.record_info is None
 
     events = []
-    connection_interface.subscribe(ConnectionEvents.CONNECTION_INITIALIZED, lambda **kwargs: events.append(kwargs))
+    connection_interface.subscribe(
+        ConnectionEvents.CONNECTION_INITIALIZED, lambda **kwargs: events.append(kwargs)
+    )
 
     connection_interface.ii_init(record_info=record_info)
     assert connection_interface.record_info is record_info
     assert len(events) == 1
 
 
-def test_connection_interface_record_handling(connection_interface: ConnectionInterface, record_collection):
+def test_connection_interface_record_handling(
+    connection_interface: ConnectionInterface, record_collection
+):
     record_info, records = record_collection
 
     container = MockRecordContainer()
     connection_interface.add_record_container(container)
 
     events = []
-    connection_interface.subscribe(ConnectionEvents.RECORD_RECEIVED, lambda **kwargs: events.append(kwargs))
+    connection_interface.subscribe(
+        ConnectionEvents.RECORD_RECEIVED, lambda **kwargs: events.append(kwargs)
+    )
 
     for record in records:
         connection_interface.ii_push_record(record)
@@ -91,7 +97,7 @@ def test_plugin_initialization_callback():
     connection_interface = ConnectionInterface(
         plugin=plugin,
         connection_name="Connection",
-        anchor=InputAnchor(name="Input", optional=False)
+        anchor=InputAnchor(name="Input", optional=False),
     )
 
     assert not connection_interface.plugin_failed
@@ -100,9 +106,13 @@ def test_plugin_initialization_callback():
     assert connection_interface.plugin_failed
 
 
-def test_connection_interface_ii_update_progress(connection_interface: ConnectionInterface):
+def test_connection_interface_ii_update_progress(
+    connection_interface: ConnectionInterface
+):
     events = []
-    connection_interface.subscribe(ConnectionEvents.PROGRESS_UPDATE, lambda **kwargs: events.append(kwargs))
+    connection_interface.subscribe(
+        ConnectionEvents.PROGRESS_UPDATE, lambda **kwargs: events.append(kwargs)
+    )
 
     assert connection_interface.progress_percentage == 0
 
@@ -121,7 +131,9 @@ def test_connection_interface_ii_update_progress(connection_interface: Connectio
 
 def test_connection_interface_ii_close(connection_interface: ConnectionInterface):
     events = []
-    connection_interface.subscribe(ConnectionEvents.CONNECTION_CLOSED, lambda **kwargs: events.append(kwargs))
+    connection_interface.subscribe(
+        ConnectionEvents.CONNECTION_CLOSED, lambda **kwargs: events.append(kwargs)
+    )
 
     assert connection_interface.status == ConnectionStatus.CREATED
     connection_interface.ii_close()
