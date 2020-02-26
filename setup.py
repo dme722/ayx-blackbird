@@ -10,7 +10,7 @@ setup(
     license="Apache License 2.0",
     version=__version__,
     python_requires=">=3.6.0",
-    description="The (Better) Alteryx Python SDK Abstraction Layer",
+    description="Alteryx Designer Python SDK Abstraction Layer",
     author="Drew Ellison",
     author_email="dme722@gmail.com",
     install_requires=requirements,
