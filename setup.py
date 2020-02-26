@@ -1,8 +1,12 @@
 from setuptools import setup, find_packages
 from ayx_blackbird.version import __version__
 
-with open("requirements.txt") as f:
-  requirements = f.readlines()
+REQUIREMENTS = [
+    "Click>=7.0",
+    "numpy>=1.16.3",
+    "pandas>=0.23.4",
+    "xmltodict>=0.11.0"
+]
 
 setup(
     name="ayx_blackbird",
@@ -13,7 +17,7 @@ setup(
     description="Alteryx Designer Python SDK Abstraction Layer",
     author="Drew Ellison",
     author_email="dme722@gmail.com",
-    install_requires=requirements,
+    install_requires=REQUIREMENTS,
     packages=find_packages(),
     entry_points="""
         [console_scripts]
