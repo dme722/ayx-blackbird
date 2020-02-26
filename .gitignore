@@ -9,3 +9,4 @@ __pycache__/
 *.doit*
 *.srctrl*
 .mypy_cache
+.coverage

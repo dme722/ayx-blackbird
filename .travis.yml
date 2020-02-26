@@ -1,10 +1,16 @@
 language: python
-python:
-- '3.6'
+python: 3.6
+
 install:
 - pip install -r requirements-dev.txt
+- pip install codecov
+
 script:
 - doit
+
+after_success:
+  - codecov
+
 deploy:
   provider: pypi
   user: "__token__"
