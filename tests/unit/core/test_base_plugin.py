@@ -12,10 +12,10 @@ class SimplePlugin(BasePlugin):
     """Concrete implementation of an AyxPlugin."""
 
     def __init__(
-            self,
-            tool_id: int,
-            alteryx_engine: Sdk.AlteryxEngine,
-            output_anchor_mgr: Sdk.OutputAnchorManager,
+        self,
+        tool_id: int,
+        alteryx_engine: Sdk.AlteryxEngine,
+        output_anchor_mgr: Sdk.OutputAnchorManager,
     ):
         """Construct a plugin."""
         super().__init__(tool_id, alteryx_engine, output_anchor_mgr)
@@ -59,7 +59,9 @@ class SimplePlugin(BasePlugin):
 @pytest.fixture
 def simple_plugin(tool_config_location_patch, passthrough_output_anchor_mgr):
     tool_config_location_patch("passthrough_tool_config.xml")
-    return SimplePlugin(1, Sdk.AlteryxEngine(), output_anchor_mgr=passthrough_output_anchor_mgr)
+    return SimplePlugin(
+        1, Sdk.AlteryxEngine(), output_anchor_mgr=passthrough_output_anchor_mgr
+    )
 
 
 def test_base_plugin_construction(simple_plugin):
@@ -71,7 +73,9 @@ def test_base_plugin_construction(simple_plugin):
 
 def test_base_plugin_pi_init(simple_plugin):
     events = []
-    simple_plugin.subscribe(PluginEvents.PLUGIN_INITIALIZED, lambda **kwargs: events.append(kwargs))
+    simple_plugin.subscribe(
+        PluginEvents.PLUGIN_INITIALIZED, lambda **kwargs: events.append(kwargs)
+    )
 
     config = {"Configuration": {"Hello": "World"}}
     config_str = xmltodict.unparse(config, full_document=False)

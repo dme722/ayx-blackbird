@@ -13,11 +13,7 @@ def tool_config_location_patch(monkeypatch):
             "get_tool_config_filepath",
             lambda *args: os.path.abspath(
                 os.path.join(
-                    os.path.dirname(__file__),
-                    "..",
-                    "assets",
-                    "tool_configs",
-                    filename,
+                    os.path.dirname(__file__), "..", "assets", "tool_configs", filename
                 )
             ),
         )
