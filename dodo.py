@@ -65,7 +65,7 @@ def task_pytest():
     for path in python_directories:
         file_deps += list_files(path)
 
-    return {"actions": [f"pytest tests"], "file_dep": file_deps}
+    return {"actions": [f"coverage run -m pytest tests"], "file_dep": file_deps}
 
 
 def list_files(directory, ignore_extensions=None):
