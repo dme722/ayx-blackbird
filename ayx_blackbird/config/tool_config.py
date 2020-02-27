@@ -22,10 +22,13 @@ class ToolConfiguration:
         self.output_anchor_mgr = output_anchor_mgr
 
     def get_tool_config(self) -> Dict[str, Any]:
-        with open(str(self.get_tool_config_filepath())) as fd:
-            tool_config = dict(xmltodict.parse(fd.read(), strip_whitespace=False))
-
-        return tool_config
+        try:
+            with open(str(self.get_tool_config_filepath())) as fd:
+                tool_config = dict(xmltodict.parse(fd.read(), strip_whitespace=False))
+        except FileNotFoundError:
+            raise RuntimeError(f"Couldn't find tool with name {self.tool_name}.")
+        else:
+            return tool_config
 
     def get_tool_config_filepath(self) -> Path:
         """Get the path to the tool configuration file."""
