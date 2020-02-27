@@ -3,6 +3,8 @@ from pathlib import Path
 
 from ayx_blackbird.config import ToolConfiguration
 
+import pytest
+
 cur_dir = os.path.abspath(os.path.dirname(__file__))
 assets_dir = os.path.abspath(os.path.join(cur_dir, "..", "..", "assets"))
 example_tool_dir = os.path.abspath(os.path.join(assets_dir, "mock_tool_location"))
@@ -35,6 +37,13 @@ def test_get_tool_config(output_anchor_mgr, tool_config_location_patch):
         config["AlteryxJavaScriptPlugin"]["Properties"]["MetaInfo"]["Name"]
         == "Blackbird Passthrough"
     )
+
+
+def test_get_tool_config_error(output_anchor_mgr):
+    with pytest.raises(RuntimeError):
+        ToolConfiguration(
+            tool_name="test_tool", output_anchor_mgr=output_anchor_mgr
+        ).get_tool_config()
 
 
 def test_get_tool_config_file_path(monkeypatch, output_anchor_mgr):
