@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/dme722/ayx-blackbird.svg?branch=master)](https://travis-ci.com/dme722/ayx-blackbird)
 [![codecov](https://codecov.io/gh/dme722/ayx-blackbird/branch/master/graphs/badge.svg)](https://codecov.io/gh/dme722/ayx-blackbird)
 
-![alt text](blackbird.jpg "Logo Title Text 1")
+![alt text](https://github.com/dme722/ayx-blackbird/blob/master/blackbird.jpg)
 
 ## What is it?
 `ayx-blackbird` is a package for building new tools for [Alteryx Designer](https://www.alteryx.com/designer-trial/free-trial?&utm_source=google&utm_medium=cpc&utm_campaign=Demgen-Mixed-Brand_New&utm_term=alteryx%20designer&gclid=CjwKCAiAjrXxBRAPEiwAiM3DQlrvZhb2QftEwjdOIkT7rhunlaipoaT4wiFn7GsEuDrqmnj7eMNL2RoCY-oQAvD_BwE) in Python.
