@@ -39,7 +39,9 @@ def test_get_tool_config(output_anchor_mgr, tool_config_location_patch):
     )
 
 
-def test_get_tool_config_error(output_anchor_mgr):
+def test_get_tool_config_error(monkeypatch, output_anchor_mgr):
+    monkeypatch.setenv("APPDATA", ".")
+    monkeypatch.setenv("ALLUSERSPROFILE", ".")
     with pytest.raises(RuntimeError):
         ToolConfiguration(
             tool_name="test_tool", output_anchor_mgr=output_anchor_mgr
