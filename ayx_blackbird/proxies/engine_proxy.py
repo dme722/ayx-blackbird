@@ -44,6 +44,10 @@ class EngineProxy:
         """Check if the engine is running in update only mode."""
         return bool(self.engine.get_init_var(self.tool_id, "UpdateOnly") == "True")
 
+    @property
+    def designer_version(self) -> str:
+        return self.engine.get_init_var(self.tool_id, "Version")
+
     def update_config_xml(self, workflow_config: WorkflowConfiguration) -> None:
         """Update the config XML of this tool if it has changed."""
         if workflow_config.original_data != workflow_config.data:

@@ -77,3 +77,7 @@ def test_create_record_info(engine_proxy):
 
 def test_create_temp_file(engine_proxy):
     assert engine_proxy.create_temp_file().endswith(".tmp")
+
+
+def test_designer_version(engine_proxy):
+    assert engine_proxy.designer_version
