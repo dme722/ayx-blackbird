@@ -65,9 +65,12 @@ def simple_plugin(tool_config_location_patch, passthrough_output_anchor_mgr):
 
 
 @pytest.fixture
-def erroring_simple_plugin(monkeypatch, tool_config_location_patch, passthrough_output_anchor_mgr):
+def erroring_simple_plugin(
+    monkeypatch, tool_config_location_patch, passthrough_output_anchor_mgr
+):
     def raise_err(*_, **__):
         raise ValueError("Hello world")
+
     monkeypatch.setattr(SimplePlugin, "initialize_plugin", raise_err)
 
     tool_config_location_patch("passthrough_tool_config.xml")
