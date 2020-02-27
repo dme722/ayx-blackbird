@@ -162,7 +162,7 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         if sys.platform == "win32":
             log_directory = os.path.join(os.environ["LOCALAPPDATA"], "Alteryx", "Log")
         else:
-            log_directory = os.path.join("/var", "/tmp")
+            log_directory = os.path.join("/var", "tmp")
 
         return os.path.join(log_directory, f"{self.tool_name}{self.tool_id}.log")
 

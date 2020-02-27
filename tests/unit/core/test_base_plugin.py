@@ -64,6 +64,18 @@ def simple_plugin(tool_config_location_patch, passthrough_output_anchor_mgr):
     )
 
 
+@pytest.fixture
+def erroring_simple_plugin(monkeypatch, tool_config_location_patch, passthrough_output_anchor_mgr):
+    def raise_err(*_, **__):
+        raise ValueError("Hello world")
+    monkeypatch.setattr(SimplePlugin, "initialize_plugin", raise_err)
+
+    tool_config_location_patch("passthrough_tool_config.xml")
+    return SimplePlugin(
+        1, Sdk.AlteryxEngine(), output_anchor_mgr=passthrough_output_anchor_mgr
+    )
+
+
 def test_base_plugin_construction(simple_plugin):
     assert simple_plugin.tool_id == 1
     assert len(simple_plugin.input_anchors) == 0
