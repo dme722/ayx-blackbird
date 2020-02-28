@@ -100,7 +100,11 @@ class WorkflowRunConnectionCallbackStrategy(ConnectionCallbackStrategy):
                 try:
                     for anchor in self.plugin.input_anchors:
                         for connection in anchor.connections:
-                            self.plugin.on_incoming_records(connection)
+                            if any(
+                                len(container.records) > 0
+                                for container in connection.record_containers
+                            ):
+                                self.plugin.on_incoming_records(connection)
                     self.plugin.on_complete()
                     self.plugin.close_output_anchors()
                 except Exception as e:

@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import List, NoReturn, Optional
 
 import AlteryxPythonSDK as Sdk
@@ -157,14 +158,22 @@ class BasePlugin(ABC, AnchorUtilsMixin, ObservableMixin):
         self.notify_topic(PluginEvents.PLUGIN_FAILURE, exception=e)
 
     @property
-    def log_filepath(self) -> str:
-        """Get the log filename."""
+    def log_directory(self) -> Path:
+        """Get the log directory."""
         if sys.platform == "win32":
-            log_directory = os.path.join(os.environ["LOCALAPPDATA"], "Alteryx", "Log")
+            log_directory = Path(os.environ["localappdata"]) / "Alteryx" / "Log"
         else:
-            log_directory = os.path.join("/var", "tmp")
+            # Required for CI/CD pipelines running in linux environment
+            # + future proofing
+            log_directory = Path.home() / ".Alteryx" / "Log"
 
-        return os.path.join(log_directory, f"{self.tool_name}{self.tool_id}.log")
+        log_directory.mkdir(parents=True, exist_ok=True)
+        return log_directory
+
+    @property
+    def log_filepath(self) -> Path:
+        """Get the log filename."""
+        return self.log_directory / f"{self.tool_name}{self.tool_id}.log"
 
     @property
     def logger(self) -> logging.Logger:
